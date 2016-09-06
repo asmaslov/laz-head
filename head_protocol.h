@@ -5,13 +5,19 @@
 
 #define HEAD_PACKET_LEN  10
 
-#define HEAD_CONTROL_READ   0x00
-#define HEAD_CONTROL_MOVE   0x01
+#define HEAD_CONTROL_READ        0x00
+#define HEAD_CONTROL_MOVE_ANGLE  0x01
+#define HEAD_CONTROL_STOP        0x02
+#define HEAD_CONTROL_MOVE        0x03
 
-#define HEAD_REPLY_ACK      0xFF
-#define HEAD_REPLY_DATA     0xFE
+#define HEAD_MOTOR_INDEX_ROTATE  0x00
+#define HEAD_MOTOR_INDEX_TILT    0x01
 
-#pragma anon_unions
+#define HEAD_MOTOR_DIRECTION_LEFT   0x00
+#define HEAD_MOTOR_DIRECTION_RIGHT  0x01
+
+#define HEAD_REPLY_ACK   0xFF
+#define HEAD_REPLY_DATA  0xFE
 
 typedef union {
   unsigned char bytes[HEAD_PACKET_LEN];
@@ -33,19 +39,23 @@ typedef union {
       };
     };
     union {
+      unsigned char motorIndex;
       struct {
-        unsigned char inPosition : 1;
-        unsigned char __status_bit_1 : 1;
-        unsigned char __status_bit_2 : 1;
-        unsigned char __status_bit_3 : 1;
-        unsigned char error : 1;
-        unsigned char __status_bit_5 : 1;
+        unsigned char rotInPosition : 1;
+        unsigned char tiltInPosition : 1;
+        unsigned char rotMoving : 1;
+        unsigned char tiltMoving : 1;
+        unsigned char rotError : 1;
+        unsigned char tiltError : 1;
         unsigned char __status_bit_6 : 1;
         unsigned char __status_bit_7 : 1;
       };
       unsigned char speedRot;
-    };      
-    unsigned char speedTilt;
+    };
+    union {
+      unsigned char motorDirection;
+      unsigned char speedTilt;
+    };  
     union {
       unsigned short crc;
       struct {

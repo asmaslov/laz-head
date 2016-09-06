@@ -9,8 +9,8 @@
 static const uint32_t prescale1[6] = {0, 1, 8, 64, 256, 1024};
 static const uint32_t prescale2[8] = {0, 1, 8, 32, 64, 128, 256, 1024};
 
-static volatile bool rotMoving = false;
-static volatile bool tiltMoving = false;
+static bool controlRotAngle = false;
+static bool controlTiltAngle = false;
 
 static int16_t angleRotPref = 0;
 static int16_t angleTiltPref = 0;
@@ -24,74 +24,80 @@ static uint8_t timerTiltConfig = 0;
 
 ISR(TIMER1_COMPA_vect)
 {
-	timerRotStep++;
-	if(timerRotStep > MOTOR_ROT_STEPS_IN_ANGLE)
-	{
-		timerRotStep = 0;
+  timerRotStep++;
+  if(timerRotStep > MOTOR_ROT_STEPS_IN_ANGLE)
+  {
+    timerRotStep = 0;
     if (speedRot >= 0)
     {
       motor_angleRotReal++;
-      if (motor_angleRotReal >= angleRotPref)
+      if (controlRotAngle && (motor_angleRotReal >= angleRotPref))
       {
-        PORTB &= ~(MOTOR_ROT_LEFT | MOTOR_ROT_RIGHT);
-        TIMSK &= ~(1 << OCIE1A);
-        TCCR1A = 0x00;
-        TCCR1B = 0x00;
-        rotMoving = false;
+        motor_stopRot();
+        motor_rotInPosition = true;
       }
+    #ifdef MOTOR_ROT_MAX_ANGLE  
+      if (motor_angleRotReal >= MOTOR_ROT_MAX_ANGLE)
+      {
+        motor_stopRot();       
+      }
+    #endif
     }
     else
     {
       motor_angleRotReal--;
-      if (motor_angleRotReal <= angleRotPref)
+      if (controlRotAngle && (motor_angleRotReal <= angleRotPref))
       {
-        PORTB &= ~(MOTOR_ROT_LEFT | MOTOR_ROT_RIGHT);
-        TIMSK &= ~(1 << OCIE1A);
-        TCCR1A = 0x00;
-        TCCR1B = 0x00;
-        rotMoving = false;
+        motor_stopRot();
+        motor_rotInPosition = true;
       }
+    #ifdef MOTOR_ROT_MIN_ANGLE  
+      if (motor_angleRotReal <= MOTOR_ROT_MIN_ANGLE)
+      {
+        motor_stopRot();
+      }
+    #endif    
     }
-    if (!rotMoving && !tiltMoving)
-    {
-      motor_inPosition = true;
-    }
-	}	
+  }  
 }
 
 ISR(TIMER2_COMP_vect)
 {
-	timerTiltStep++;
-	if (timerTiltStep > MOTOR_TILT_STEPS_IN_ANGLE)
-	{
-		timerTiltStep = 0;
+  timerTiltStep++;
+  if (timerTiltStep > MOTOR_TILT_STEPS_IN_ANGLE)
+  {
+    timerTiltStep = 0;
     if (speedTilt >= 0)
     {
       motor_angleTiltReal++;
-      if (motor_angleTiltReal >= angleTiltPref)
+      if (controlTiltAngle && (motor_angleTiltReal >= angleTiltPref))
       {
-        PORTB &= ~(MOTOR_TILT_LEFT | MOTOR_TILT_RIGHT);
-        TIMSK &= ~(1 << OCIE2);
-        TCCR2 = 0x00;
-        tiltMoving = false;
+        motor_stopTilt();
+        motor_tiltInPosition = true;
       }
+    #ifdef MOTOR_TILT_MAX_ANGLE  
+      if (motor_angleTiltReal >= MOTOR_TILT_MAX_ANGLE)
+      {
+        motor_stopTilt();
+      }
+    #endif
     }
     else
     {
       motor_angleTiltReal--;
-      if (motor_angleTiltReal <= angleTiltPref)
+      if (controlTiltAngle && (motor_angleTiltReal <= angleTiltPref))
       {
-        PORTB &= ~(MOTOR_TILT_LEFT | MOTOR_TILT_RIGHT);
-        TIMSK &= ~(1 << OCIE2);
-        TCCR2 = 0x00;
-        tiltMoving = false;
+        motor_stopTilt();
+        motor_tiltInPosition = true;
       }
+    #ifdef MOTOR_TILT_MIN_ANGLE  
+      if (motor_angleTiltReal <= MOTOR_TILT_MIN_ANGLE)
+      {
+        motor_stopTilt();
+      }
+    #endif
     }
-    if (!rotMoving && !tiltMoving)
-    {
-      motor_inPosition = true;
-    }
-	}	
+  }  
 }
 
 void motor_setup(void)
@@ -99,7 +105,12 @@ void motor_setup(void)
   uint8_t div;
   uint32_t ocr;
   
-  motor_inPosition = false;
+  motor_rotInPosition = false;
+  motor_tiltInPosition = false;
+  motor_rotMoving = false;
+  motor_tiltMoving = false;
+  motor_rotError = false;
+  motor_tiltError = false;
   motor_angleRotReal = 0;
   motor_angleTiltReal = 0;
   
@@ -121,38 +132,36 @@ void motor_setup(void)
   timerTiltConfig = (1 << WGM21) | (((div >> 2) & 1) << CS22) | (((div >> 1) & 1) << CS21) | (((div >> 0) & 1) << CS20);
 }
 
-void motor_move(int16_t deltaAngleRot, int16_t deltaAngleTilt)
+void motor_moveRotAngle(int16_t deltaAngle)
 {
-  motor_inPosition = false;
-  PORTB &= ~(MOTOR_ROT_LEFT | MOTOR_ROT_RIGHT | MOTOR_TILT_LEFT | MOTOR_TILT_RIGHT);
-  TIMSK &= ~((1 << OCIE1A) | (1 << OCIE2));
-  TCCR1B = 0x00;
-  speedRot = 0;
-  rotMoving = false;
-  TCCR2 = 0x00;
-  speedTilt = 0;
-  tiltMoving = false;
-  if(deltaAngleRot != 0)
+  motor_stopRot();
+  if(deltaAngle != 0)
   {
-    angleRotPref = motor_angleRotReal + deltaAngleRot;
+    angleRotPref = motor_angleRotReal + deltaAngle;
     timerRotStep = 0;
   #ifdef MOTOR_ROT_MIN_ANGLE  
     if (angleRotPref < MOTOR_ROT_MIN_ANGLE)
     {
       angleRotPref = motor_angleRotReal;
+      motor_rotError = true;
+      return;
     }
   #endif
   #ifdef MOTOR_ROT_MAX_ANGLE  
     if (angleRotPref > MOTOR_ROT_MAX_ANGLE)
     {
       angleRotPref = motor_angleRotReal;
+      motor_rotError = true;
+      return;
     }
   #endif
     if((angleRotPref - motor_angleRotReal) > 0)
     {
       PORTB |= MOTOR_ROT_RIGHT;
       speedRot = 1;
-      rotMoving = true;
+      motor_rotMoving = true;
+      motor_rotInPosition = false;
+      controlRotAngle = true;
       TCCR1B = timerRotConfig;
       TIMSK |= (1 << OCIE1A);
       TCNT1 = 0;
@@ -161,33 +170,46 @@ void motor_move(int16_t deltaAngleRot, int16_t deltaAngleTilt)
     {
       PORTB |= MOTOR_ROT_LEFT;
       speedRot = -1;
-      rotMoving = true;
+      motor_rotMoving = true;
+      motor_rotInPosition = false;
+      controlRotAngle = true;
       TCCR1B = timerRotConfig;
       TIMSK |= (1 << OCIE1A);
       TCNT1 = 0;      
     }
   }
-  if(deltaAngleTilt != 0)
+}
+
+void motor_moveTiltAngle(int16_t deltaAngle)
+{
+  motor_stopTilt();
+  if(deltaAngle != 0)
   {
-    angleTiltPref = motor_angleTiltReal + deltaAngleTilt;
+    angleTiltPref = motor_angleTiltReal + deltaAngle;
     timerTiltStep = 0;
   #ifdef MOTOR_TILT_MIN_ANGLE  
     if (angleTiltPref < MOTOR_TILT_MIN_ANGLE)
     {
       angleTiltPref = motor_angleTiltReal;
+      motor_tiltError = true;
+      return;
     }
   #endif
   #ifdef MOTOR_TILT_MAX_ANGLE  
     if (angleTiltPref > MOTOR_TILT_MAX_ANGLE)
     {
       angleTiltPref = motor_angleTiltReal;
+      motor_tiltError = true;
+      return;
     }
   #endif
     if((angleTiltPref - motor_angleTiltReal) > 0)
     {
       PORTB |= MOTOR_TILT_RIGHT;
       speedTilt = 1;
-      tiltMoving = true;
+      motor_tiltMoving = true;
+      motor_tiltInPosition = false;
+      controlTiltAngle = true;
       TCCR2 = timerTiltConfig;
       TIMSK |= (1 << OCIE2);
       TCNT2 = 0;
@@ -196,14 +218,114 @@ void motor_move(int16_t deltaAngleRot, int16_t deltaAngleTilt)
     {
       PORTB |= MOTOR_TILT_LEFT;
       speedTilt = -1;
-      tiltMoving = true;
+      motor_tiltMoving = true;
+      motor_tiltInPosition = false;
+      controlTiltAngle = true;
       TCCR2 = timerTiltConfig;
       TIMSK |= (1 << OCIE2);
       TCNT2 = 0;    
     }    
   }
-  if (!rotMoving && !tiltMoving)
+}
+
+void motor_stopRot(void)
+{
+  PORTB &= ~(MOTOR_ROT_LEFT | MOTOR_ROT_RIGHT);
+  TIMSK &= ~(1 << OCIE1A);
+  TCCR1A = 0x00;
+  TCCR1B = 0x00;
+  motor_rotMoving = false;
+  speedRot = 0;
+  controlRotAngle = false;
+  motor_rotError = false;
+}
+
+void motor_stopTilt(void)
+{
+  PORTB &= ~(MOTOR_TILT_LEFT | MOTOR_TILT_RIGHT);
+  TIMSK &= ~(1 << OCIE2);
+  TCCR2 = 0x00;
+  motor_tiltMoving = false;
+  speedTilt = 0;
+  controlTiltAngle = false;
+  motor_tiltError = false;
+}
+
+void motor_moveRot(bool direction)
+{
+  motor_stopRot();
+#ifdef MOTOR_ROT_MIN_ANGLE  
+  if (motor_angleRotReal <= MOTOR_ROT_MIN_ANGLE)
   {
-    motor_inPosition = true;
+    motor_rotError = true;
+    return;
+  }
+#endif
+#ifdef MOTOR_ROT_MAX_ANGLE  
+  if (motor_angleRotReal >= MOTOR_ROT_MAX_ANGLE)
+  {
+    motor_rotError = true;
+    return;
+  }
+#endif
+  if (direction)
+  {
+    PORTB |= MOTOR_ROT_RIGHT;
+    speedRot = 1;
+    motor_rotMoving = true;
+    motor_rotInPosition = false;
+    TCCR1B = timerRotConfig;
+    TIMSK |= (1 << OCIE1A);
+    TCNT1 = 0;
+  }
+  else
+  {
+    PORTB |= MOTOR_ROT_LEFT;
+    speedRot = -1;
+    motor_rotMoving = true;
+    motor_rotInPosition = false;
+    TCCR1B = timerRotConfig;
+    TIMSK |= (1 << OCIE1A);
+    TCNT1 = 0;     
+  }
+}
+
+void motor_moveTilt(bool direction)
+{
+  motor_stopTilt();
+#ifdef MOTOR_TILT_MIN_ANGLE  
+  if (motor_angleTiltReal <= MOTOR_TILT_MIN_ANGLE)
+  {
+    motor_tiltError = true;
+    return;
+  }
+#endif
+#ifdef MOTOR_TILT_MAX_ANGLE  
+  if (motor_angleTiltReal >= MOTOR_TILT_MAX_ANGLE)
+  {
+    motor_tiltError = true;
+    return;
+  }
+#endif
+  if (direction)
+  {
+    PORTB |= MOTOR_TILT_RIGHT;
+    speedTilt = 1;
+    motor_tiltMoving = true;
+    motor_tiltInPosition = false;
+    TCCR2 = timerTiltConfig;
+    TIMSK |= (1 << OCIE2);
+    TCNT2 = 0;
+  }
+  else
+  {
+    PORTB |= MOTOR_TILT_LEFT;
+    speedTilt = -1;
+    motor_tiltMoving = true;
+    motor_tiltInPosition = false;
+    controlTiltAngle = true;
+    TCCR2 = timerTiltConfig;
+    TIMSK |= (1 << OCIE2);
+    TCNT2 = 0; 
   }
 }

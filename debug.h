@@ -27,14 +27,14 @@ static inline void deblink(void)
 
 static inline void debinv(void)
 {
-	if (PIND & (1 << PIND7))
-	{
-		debug(1);
-	}
-	else
-	{
-		debug(0);
-	}
+  if (PIND & (1 << PIND7))
+  {
+    debug(1);
+  }
+  else
+  {
+    debug(0);
+  }
 }
 
 #endif // __DEBUG_H__

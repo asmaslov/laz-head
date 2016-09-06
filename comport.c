@@ -119,6 +119,8 @@ void comport_parse(void)
   if (received_part_index == 1)
   {
     if ((rec_byte == HEAD_CONTROL_READ) ||
+        (rec_byte == HEAD_CONTROL_MOVE_ANGLE) ||
+        (rec_byte == HEAD_CONTROL_STOP) ||
         (rec_byte == HEAD_CONTROL_MOVE))
     {
       received_message.type = rec_byte;
@@ -218,7 +220,10 @@ void comport_reply_ack(void)
   comport_need_feedback = false;
 }
 
-void comport_reply_data(uint16_t angleRot, uint16_t angleTilt, bool inPosition)
+void comport_reply_data(uint16_t angleRot, uint16_t angleTilt,
+                        bool rotInPosition, bool tiltInPosition,
+                        bool rotMoving, bool tiltMoving,
+                        bool rotError, bool tiltError)
 {
   HeadPacket transmitted_message;
   uint8_t i;
@@ -227,7 +232,12 @@ void comport_reply_data(uint16_t angleRot, uint16_t angleTilt, bool inPosition)
   transmitted_message.type = HEAD_REPLY_DATA;
   transmitted_message.angleRot = angleRot;
   transmitted_message.angleTilt = angleTilt;
-  transmitted_message.inPosition = inPosition;
+  transmitted_message.rotInPosition = rotInPosition;
+  transmitted_message.tiltInPosition = tiltInPosition;
+  transmitted_message.rotMoving = rotMoving;
+  transmitted_message.tiltMoving = tiltMoving;
+  transmitted_message.rotError = rotError;
+  transmitted_message.tiltError = tiltError;
   transmitted_message.crc = 0;
   for (i = 0; i < HEAD_PACKET_LEN - 2; ++i)
   {
