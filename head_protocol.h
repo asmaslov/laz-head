@@ -13,9 +13,6 @@
 #define HEAD_MOTOR_INDEX_ROTATE  0x00
 #define HEAD_MOTOR_INDEX_TILT    0x01
 
-#define HEAD_MOTOR_DIRECTION_LEFT   0x00
-#define HEAD_MOTOR_DIRECTION_RIGHT  0x01
-
 #define HEAD_REPLY_ACK   0xFF
 #define HEAD_REPLY_DATA  0xFE
 
@@ -50,11 +47,11 @@ typedef union {
         unsigned char __status_bit_6 : 1;
         unsigned char __status_bit_7 : 1;
       };
-      unsigned char speedRot;
+      unsigned char speedLimitRot;
     };
     union {
-      unsigned char motorDirection;
-      unsigned char speedTilt;
+      unsigned char motorSpeed;
+      unsigned char speedLimitTilt;
     };  
     union {
       unsigned short crc;

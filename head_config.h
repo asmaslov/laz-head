@@ -5,6 +5,7 @@
   #define F_CPU 16000000
 #endif
 
-#define HEAD_ADDR  0x80
+#define HEAD_ADDR  0x21
+#define PC_ADDR    0xA1
 
 #endif // __HEAD_CONFIG_H__

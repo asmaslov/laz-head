@@ -88,12 +88,12 @@ void comport_parse(void)
   }
   if (received_part_index == 7)
   {
-    received_message.speedTilt = rec_byte;
+    received_message.speedLimitTilt = rec_byte;
     received_part_index = 8;
   } 
   if (received_part_index == 6)
   {
-    received_message.speedRot = rec_byte;
+    received_message.speedLimitRot = rec_byte;
     received_part_index = 7;
   } 
   if (received_part_index == 5)
@@ -207,7 +207,7 @@ void comport_reply_ack(void)
   HeadPacket transmitted_message;
   uint8_t i;
   
-  transmitted_message.unit = HEAD_ADDR;
+  transmitted_message.unit = PC_ADDR;
   transmitted_message.type = HEAD_REPLY_ACK;
   transmitted_message.crc = 0;
   for (i = 0; i < HEAD_PACKET_LEN - 2; i++)
@@ -228,7 +228,7 @@ void comport_reply_data(uint16_t angleRot, uint16_t angleTilt,
   HeadPacket transmitted_message;
   uint8_t i;
   
-  transmitted_message.unit = HEAD_ADDR;
+  transmitted_message.unit = PC_ADDR;
   transmitted_message.type = HEAD_REPLY_DATA;
   transmitted_message.angleRot = angleRot;
   transmitted_message.angleTilt = angleTilt;

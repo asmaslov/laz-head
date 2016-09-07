@@ -251,7 +251,7 @@ void motor_stopTilt(void)
   motor_tiltError = false;
 }
 
-void motor_moveRot(bool direction)
+void motor_moveRot(uint8_t speed)
 {
   motor_stopRot();
 #ifdef MOTOR_ROT_MIN_ANGLE  
@@ -268,7 +268,7 @@ void motor_moveRot(bool direction)
     return;
   }
 #endif
-  if (direction)
+  if ((speed & 0x80) == 0)
   {
     PORTB |= MOTOR_ROT_RIGHT;
     speedRot = 1;
@@ -290,7 +290,7 @@ void motor_moveRot(bool direction)
   }
 }
 
-void motor_moveTilt(bool direction)
+void motor_moveTilt(uint8_t speed)
 {
   motor_stopTilt();
 #ifdef MOTOR_TILT_MIN_ANGLE  
@@ -307,7 +307,7 @@ void motor_moveTilt(bool direction)
     return;
   }
 #endif
-  if (direction)
+  if ((speed & 0x80) == 0)
   {
     PORTB |= MOTOR_TILT_RIGHT;
     speedTilt = 1;

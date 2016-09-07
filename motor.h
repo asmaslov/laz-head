@@ -32,7 +32,7 @@ void motor_moveRotAngle(int16_t deltaAngle);
 void motor_moveTiltAngle(int16_t deltaAngle);
 void motor_stopRot(void);
 void motor_stopTilt(void);
-void motor_moveRot(bool direction);
-void motor_moveTilt(bool direction);
+void motor_moveRot(uint8_t speed);
+void motor_moveTilt(uint8_t speed);
 
 #endif // __PWM_H__

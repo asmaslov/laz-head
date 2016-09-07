@@ -64,28 +64,17 @@ static void command_handler(void *args)
       break;
     case HEAD_CONTROL_MOVE:
       comport_reply_ack();
-      switch (data->motorIndex) {
-        case HEAD_MOTOR_INDEX_ROTATE:
-          switch (data->motorDirection) {
-            case HEAD_MOTOR_DIRECTION_LEFT:
-              motor_moveRot(false);
-              break;
-            case HEAD_MOTOR_DIRECTION_RIGHT:
-              motor_moveRot(true);
-              break;
-          }
-          break;
-        case HEAD_MOTOR_INDEX_TILT:
-          switch (data->motorDirection) {
-            case HEAD_MOTOR_DIRECTION_LEFT:
-              motor_moveTilt(false);
-              break;
-            case HEAD_MOTOR_DIRECTION_RIGHT:
-              motor_moveTilt(true);
-              break;
-          }
-          break;
-      }          
+      if((data->motorSpeed & 0x7F) != 0)
+      {
+        switch (data->motorIndex) {
+          case HEAD_MOTOR_INDEX_ROTATE:
+            motor_moveRot(data->motorSpeed);
+            break;
+          case HEAD_MOTOR_INDEX_TILT:
+            motor_moveTilt(data->motorSpeed);
+            break;
+        }
+      }                  
       break;    
   }
 }
