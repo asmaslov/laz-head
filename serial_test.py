@@ -39,13 +39,12 @@ class MainWindow(QtGui.QMainWindow):
             event.accept()
         else:
             event.ignore()
-
             
     def on_pushButtonMove_released(self):
         if self.ser.isOpen():
             packet = bytearray()
             crc = 0
-            packet.append(0x80)
+            packet.append(0x21)
             packet.append(0x01)
             if isint(self.ui.lineEditRotAngle.text()):
                 rotAngle = int(self.ui.lineEditRotAngle.text())
@@ -75,14 +74,17 @@ class MainWindow(QtGui.QMainWindow):
             packet.append(crc & 0xFF)
             #print ' '.join('0x{:02X}'.format(x) for x in packet)
             self.ser.write(packet)
-            #self.ui.statusbar.showMessage('Move command sent')
+            self.ui.lineEditRotAngle.clear()
+            self.ui.lineEditTiltAngle.clear()
+            self.ui.lineEditRotSpeed.clear()
+            self.ui.lineEditTiltSpeed.clear()
         else:
             self.ui.statusbar.showMessage('Port not open')
 
     def on_pushButtonRead_released(self):
         if self.ser.isOpen():
             packet = bytearray()
-            packet.append(0x80)
+            packet.append(0x21)
             packet.append(0x00)
             packet.append(0x00)
             packet.append(0x00)
@@ -94,7 +96,6 @@ class MainWindow(QtGui.QMainWindow):
             packet.append(0x80)
             #print ' '.join('0x{:02X}'.format(x) for x in packet)
             self.ser.write(packet)
-            #self.ui.statusbar.showMessage('Read command sent')
         else:
             self.ui.statusbar.showMessage('Port not open')
     
@@ -141,23 +142,40 @@ class MainWindow(QtGui.QMainWindow):
         crc = 0
         str = ''
         if self.ser.isOpen() and (self.ser.inWaiting() >= 10):
-            #self.ui.statusbar.showMessage('Reading data')
             data = map(ord, self.ser.read(10))
             for i in range (0, len(data) - 2):
                 crc = crc + data[i]
             if (crc == ((data[8] << 8) | data[9])):
                 #print ' '.join('0x{:02X}'.format(x) for x in data)
-                if (data[1] == 0xFF):
-                    self.ui.statusbar.showMessage('Acknowledged')
-                elif (data[1] == 0xFE):
-                    if (data[6] & (1 << 0)):
-                        self.ui.statusbar.showMessage('In position')
+                if (data[0] == 0xA1):
+                    if (data[1] == 0xFF):
+                        self.ui.statusbar.showMessage('Acknowledged')
+                    elif (data[1] == 0xFE):
+                        rotAngle = int(((data[2] & 0x7F) << 8) | data[3])
+                        if ((data[2] & 0x80) != 0):
+                            rotAngle = -rotAngle
+                        tiltAngle = int(((data[4] & 0x7F) << 8) | data[5])
+                        if ((data[4] & 0x80) != 0):
+                            tiltAngle = -tiltAngle
+                        self.ui.lineEditRotAngle.setText(str(rotAngle))
+                        self.ui.lineEditTiltAngle.setText(str(tiltAngle))
+                        messageText = ''
+                        if (data[6] & (1 << 0)):
+                            messageText = messageText + 'Rotate finsih'
+                        if (data[6] & (1 << 2)):
+                            messageText = messageText + 'Rotate active'
+                        if (data[6] & (1 << 4)):
+                            messageText = messageText + 'Rotate error'
+                        messageText = messageText + ' '    
+                        if (data[6] & (1 << 1)):
+                            messageText = messageText + 'Tilt finsih'
+                        if (data[6] & (1 << 3)):
+                            messageText = messageText + 'Tilt active'
+                        if (data[6] & (1 << 5)):
+                            messageText = messageText + 'Tilt error'
+                        self.ui.statusbar.showMessage(messageText)
                     else:
-                        self.ui.statusbar.showMessage('Moving')
-                    if (data[6] & (1 << 4)):
-                        self.ui.statusbar.showMessage('Error')
-                else:
-                    self.ui.statusbar.showMessage('Unknown')
+                        self.ui.statusbar.showMessage('Unknown')
 
 app = QtGui.QApplication(sys.argv)
 main = MainWindow()
