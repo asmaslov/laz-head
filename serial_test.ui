@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>253</height>
+    <width>420</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,23 +17,23 @@
    <widget class="QPushButton" name="pushButtonMove">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>30</y>
+      <x>120</x>
+      <y>20</y>
       <width>75</width>
-      <height>23</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Move</string>
+     <string>Move to ...</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonRead">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>80</y>
+      <x>120</x>
+      <y>60</y>
       <width>75</width>
-      <height>23</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -43,7 +43,7 @@
    <widget class="QLineEdit" name="lineEditRotAngle">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>210</x>
       <y>30</y>
       <width>91</width>
       <height>20</height>
@@ -53,7 +53,7 @@
    <widget class="QLabel" name="labelRotAngle">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>210</x>
       <y>10</y>
       <width>71</width>
       <height>16</height>
@@ -66,7 +66,7 @@
    <widget class="QLineEdit" name="lineEditTiltAngle">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>210</x>
       <y>80</y>
       <width>91</width>
       <height>20</height>
@@ -76,7 +76,7 @@
    <widget class="QLabel" name="labelTiltAngle">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>210</x>
       <y>60</y>
       <width>71</width>
       <height>16</height>
@@ -86,33 +86,10 @@
      <string>Tilt Angle</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEditTiltSpeed">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>80</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelTiltSpeed">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>60</y>
-      <width>71</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Tilt Speed</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="lineEditRotSpeed">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>320</x>
       <y>30</y>
       <width>91</width>
       <height>20</height>
@@ -122,7 +99,7 @@
    <widget class="QLabel" name="labelRotSpeed">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>320</x>
       <y>10</y>
       <width>71</width>
       <height>16</height>
@@ -132,14 +109,105 @@
      <string>Rotate Speed</string>
     </property>
    </widget>
+   <widget class="QLineEdit" name="lineEditTiltSpeed">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>80</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelTiltSpeed">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>60</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tilt Speed</string>
+    </property>
+   </widget>
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>120</y>
-      <width>301</width>
-      <height>91</height>
+      <width>401</width>
+      <height>101</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonLeft">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonStop">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>40</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop</string>
+    </property>
+    <property name="shortcut">
+     <string>Space</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonUp">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>^</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonDown">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>70</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>V</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonRight">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>40</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;</string>
     </property>
    </widget>
   </widget>
@@ -148,7 +216,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>320</width>
+     <width>420</width>
      <height>21</height>
     </rect>
    </property>
@@ -194,12 +262,72 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="action123">
-   <property name="text">
-    <string>123</string>
-   </property>
-  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineEditRotAngle</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>255</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditTiltAngle</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>255</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditRotSpeed</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditTiltSpeed</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
