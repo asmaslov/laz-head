@@ -41,14 +41,14 @@ static void command_handler(void *args)
       if (angleRotSigned != 0)
       {
         motor_rotInPosition = false;
-        motor_moveRot(angleRotSigned);
+        motor_moveRotAngle(angleRotSigned);
       }
       angleTiltSigned = ((data->angleTiltH & 0x7F) << 8) | data->angleTiltL;
       angleTiltSigned *= ((data->angleTiltH >> 7) ? -1 : 1);
       if (angleTiltSigned != 0)
       {
         motor_tiltInPosition = false;
-        motor_moveTilt(angleTiltSigned);
+        motor_moveTiltAngle(angleTiltSigned);
       }    
       break;
     case HEAD_CONTROL_STOP:

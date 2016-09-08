@@ -132,7 +132,11 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         if isint(self.ui.lineEditRotSpeed.text()):
-            packet.append(abs(int(self.ui.lineEditRotSpeed.text())) | 0x80)
+            speed = abs(int(self.ui.lineEditRotSpeed.text()))
+            if speed > 0x7F:
+                packet.append(0xFF)
+            else:
+                packet.append((speed & 0x7F) | 0x80)
         else:
             packet.append(0x00)
         self.sendPacket(packet)
@@ -156,7 +160,11 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         if isint(self.ui.lineEditRotSpeed.text()):
-            packet.append(abs(int(self.ui.lineEditRotSpeed.text())) & 0x7F)
+            speed = abs(int(self.ui.lineEditRotSpeed.text()))
+            if speed > 0x7F:
+                packet.append(0x7F)
+            else:
+                packet.append(speed & 0x7F)
         else:
             packet.append(0x00)
         self.sendPacket(packet)
@@ -180,7 +188,11 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x01)
         if isint(self.ui.lineEditRotSpeed.text()):
-            packet.append(abs(int(self.ui.lineEditTiltSpeed.text())) | 0x80)
+            speed = abs(int(self.ui.lineEditTiltSpeed.text()))
+            if speed > 0x7F:
+                packet.append(0xFF)
+            else:    
+                packet.append((speed & 0x7F) | 0x80)
         else:
             packet.append(0x00)
         self.sendPacket(packet)
@@ -204,7 +216,11 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x01)
         if isint(self.ui.lineEditRotSpeed.text()):
-            packet.append(abs(int(self.ui.lineEditTiltSpeed.text())) & 0x7F)
+            speed = abs(int(self.ui.lineEditTiltSpeed.text()))
+            if speed > 0x7F:
+                packet.append(0x7F)
+            else:
+                packet.append(speed & 0x7F)
         else:
             packet.append(0x00)
         self.sendPacket(packet)
@@ -278,7 +294,6 @@ class MainWindow(QtGui.QMainWindow):
 
     def readPort(self):
         crc = 0
-        str = ''
         if self.ser.isOpen() and (self.ser.inWaiting() >= 10):
             data = map(ord, self.ser.read(10))
             for i in range (0, len(data) - 2):

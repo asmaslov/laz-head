@@ -323,7 +323,6 @@ void motor_moveTilt(uint8_t speed)
     speedTilt = -1;
     motor_tiltMoving = true;
     motor_tiltInPosition = false;
-    controlTiltAngle = true;
     TCCR2 = timerTiltConfig;
     TIMSK |= (1 << OCIE2);
     TCNT2 = 0; 

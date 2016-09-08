@@ -15,7 +15,7 @@ volatile bool comport_is_data_to_parse, comport_need_feedback;
 
 void comport_setup(ParserHandler handler);
 void comport_reply_ack(void);
-void comport_reply_data(uint16_t angleRot, uint16_t angleTilt,
+void comport_reply_data(int16_t angleRot, int16_t angleTilt,
                         bool rotInPosition, bool tiltInPosition,
                         bool rotMoving, bool tiltMoving,
                         bool rotError, bool tiltError);

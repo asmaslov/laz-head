@@ -220,7 +220,7 @@ void comport_reply_ack(void)
   comport_need_feedback = false;
 }
 
-void comport_reply_data(uint16_t angleRot, uint16_t angleTilt,
+void comport_reply_data(int16_t angleRot, int16_t angleTilt,
                         bool rotInPosition, bool tiltInPosition,
                         bool rotMoving, bool tiltMoving,
                         bool rotError, bool tiltError)
@@ -230,8 +230,10 @@ void comport_reply_data(uint16_t angleRot, uint16_t angleTilt,
   
   transmitted_message.unit = PC_ADDR;
   transmitted_message.type = HEAD_REPLY_DATA;
-  transmitted_message.angleRot = angleRot;
-  transmitted_message.angleTilt = angleTilt;
+  transmitted_message.angleRot = (uint16_t)(abs(angleRot) & 0x7FFF);
+  transmitted_message.angleRot |= (angleRot < 0 ? (1 << 15) : 0);
+  transmitted_message.angleTilt = (uint16_t)(abs(angleTilt) & 0x7FFF);
+  transmitted_message.angleTilt |= (angleTilt < 0 ? (1 << 15) : 0);
   transmitted_message.rotInPosition = rotInPosition;
   transmitted_message.tiltInPosition = tiltInPosition;
   transmitted_message.rotMoving = rotMoving;
@@ -239,11 +241,22 @@ void comport_reply_data(uint16_t angleRot, uint16_t angleTilt,
   transmitted_message.rotError = rotError;
   transmitted_message.tiltError = tiltError;
   transmitted_message.crc = 0;
-  for (i = 0; i < HEAD_PACKET_LEN - 2; ++i)
-  {
-    _putchar(transmitted_message.bytes[i]);
-    transmitted_message.crc += transmitted_message.bytes[i];
-  }
+  _putchar(transmitted_message.unit);
+  transmitted_message.crc += transmitted_message.unit;
+  _putchar(transmitted_message.type);
+  transmitted_message.crc += transmitted_message.type;
+  _putchar(transmitted_message.angleRotH);
+  transmitted_message.crc += transmitted_message.angleRotH;
+  _putchar(transmitted_message.angleRotL);
+  transmitted_message.crc += transmitted_message.angleRotL;
+  _putchar(transmitted_message.angleTiltH);
+  transmitted_message.crc += transmitted_message.angleTiltH;
+  _putchar(transmitted_message.angleTiltL);
+  transmitted_message.crc += transmitted_message.angleTiltL;
+  _putchar(transmitted_message.speedLimitRot);
+  transmitted_message.crc += transmitted_message.speedLimitRot;
+  _putchar(transmitted_message.speedLimitTilt);
+  transmitted_message.crc += transmitted_message.speedLimitTilt;
   _putchar(transmitted_message.crcH);
   _putchar(transmitted_message.crcL);
   comport_need_feedback = false;
