@@ -138,7 +138,8 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 packet.append((speed & 0x7F) | 0x80)
         else:
-            packet.append(0x00)
+            self.ui.lineEditRotSpeed.setText(str(-1))
+            packet.append(0x81)
         self.sendPacket(packet)
         
     def on_pushButtonLeft_released(self):
@@ -150,6 +151,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         self.sendPacket(packet)
+        self.ui.lineEditRotSpeed.clear()
         
     def on_pushButtonRight_pressed(self):
         packet = bytearray()
@@ -166,7 +168,8 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 packet.append(speed & 0x7F)
         else:
-            packet.append(0x00)
+            self.ui.lineEditRotSpeed.setText(str(1))
+            packet.append(0x01)
         self.sendPacket(packet)
             
     def on_pushButtonRight_released(self):
@@ -178,6 +181,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         self.sendPacket(packet)
+        self.ui.lineEditRotSpeed.clear()
 
     def on_pushButtonDown_pressed(self):
         packet = bytearray()
@@ -187,14 +191,15 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         packet.append(0x01)
-        if isint(self.ui.lineEditRotSpeed.text()):
+        if isint(self.ui.lineEditTiltSpeed.text()):
             speed = abs(int(self.ui.lineEditTiltSpeed.text()))
             if speed > 0x7F:
                 packet.append(0xFF)
             else:    
                 packet.append((speed & 0x7F) | 0x80)
         else:
-            packet.append(0x00)
+            self.ui.lineEditTiltSpeed.setText(str(-1))
+            packet.append(0x81)
         self.sendPacket(packet)
 
     def on_pushButtonDown_released(self):
@@ -206,6 +211,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x01)
         self.sendPacket(packet)
+        self.ui.lineEditTiltSpeed.clear()
 
     def on_pushButtonUp_pressed(self):
         packet = bytearray()
@@ -215,14 +221,15 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         packet.append(0x01)
-        if isint(self.ui.lineEditRotSpeed.text()):
+        if isint(self.ui.lineEditTiltSpeed.text()):
             speed = abs(int(self.ui.lineEditTiltSpeed.text()))
             if speed > 0x7F:
                 packet.append(0x7F)
             else:
                 packet.append(speed & 0x7F)
         else:
-            packet.append(0x00)
+            self.ui.lineEditTiltSpeed.setText(str(1))
+            packet.append(0x01)
         self.sendPacket(packet)
 
     def on_pushButtonUp_released(self):
@@ -234,6 +241,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x01)
         self.sendPacket(packet)
+        self.ui.lineEditTiltSpeed.clear()
 
     def on_pushButtonStop_released(self):
         packet = bytearray()
@@ -244,6 +252,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         self.sendPacket(packet)
+        self.ui.lineEditRotSpeed.clear()
         packet = bytearray()
         packet.append(0x02)
         packet.append(0x00)
@@ -252,6 +261,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x01)
         self.sendPacket(packet)
+        self.ui.lineEditTiltSpeed.clear()
     
     @QtCore.pyqtSlot(bool)
     def on_actionOpen_triggered(self, arg):
