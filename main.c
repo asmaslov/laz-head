@@ -7,6 +7,7 @@
 #include "head_config.h"
 #include "comport.h"
 #include "motor.h"
+#include "lsm303.h"
 #include "debug.h"
 
 static void init_board(void)
@@ -29,7 +30,8 @@ static void command_handler(void *args)
   HeadPacket *data = (HeadPacket *)args;
   switch (data->type) {
     case HEAD_CONTROL_READ:
-      comport_reply_data(motor_angleRotReal, motor_angleTiltReal,
+      lsm303_get(&lsm303_anglesReal);
+      comport_reply_data((int16_t)lsm303_anglesReal.yaw, (int16_t)lsm303_anglesReal.pitch,
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError);
@@ -41,15 +43,15 @@ static void command_handler(void *args)
       if (angleRotSigned != 0)
       {
         motor_rotInPosition = false;
-        motor_moveRotAngle(angleRotSigned);
+        motor_moveRot(angleRotSigned);
       }
       angleTiltSigned = ((data->angleTiltH & 0x7F) << 8) | data->angleTiltL;
       angleTiltSigned *= ((data->angleTiltH >> 7) ? -1 : 1);
       if (angleTiltSigned != 0)
       {
         motor_tiltInPosition = false;
-        motor_moveTiltAngle(angleTiltSigned);
-      }    
+        motor_moveTilt(angleTiltSigned);
+      }
       break;
     case HEAD_CONTROL_STOP:
       comport_reply_ack();
@@ -85,6 +87,7 @@ int main(void)
   init_board();
   comport_setup(command_handler);
   motor_setup();
+  lsm303_init();
   debug(1);
   sei();
 
