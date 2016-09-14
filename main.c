@@ -18,8 +18,18 @@ static void init_board(void)
   DDRB = (1 << DDB0) | (1 << DDB1) | (1 << DDB2) | (1 << DDB3);
   PORTC = 0x00;
   DDRC = 0x00;
+#ifdef __AVR_ATmega16__
   PORTD = (1 << PD7);
   DDRD = (1 << DDD7);
+#endif
+#ifdef __AVR_AT90CAN128__
+  PORTD = 0x00;
+  DDRD = 0x00;
+  PORTE = (1 << PE4);
+  DDRE = (1 << DDE4);
+  PORTF = 0x00;
+  DDRF = 0x00;
+#endif
 }
 
 static void command_handler(void *args)

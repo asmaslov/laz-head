@@ -9,11 +9,21 @@ static inline void debug(uint8_t on)
 {
   if (on == 0)
   {
-    PORTD |= (1 << PORTD7);
+  #ifdef __AVR_ATmega16__
+    PORTD |= (1 << PD7);
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    PORTE |= (1 << PE4);
+  #endif
   }
   else
   {
-    PORTD &= ~(1 << PORTD7);
+  #ifdef __AVR_ATmega16__
+    PORTD &= ~(1 << PD7);
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    PORTE &= ~(1 << PE4);
+  #endif
   }
 }
 
@@ -27,7 +37,12 @@ static inline void deblink(void)
 
 static inline void debinv(void)
 {
+#ifdef __AVR_ATmega16__
   if (PIND & (1 << PIND7))
+#endif
+#ifdef __AVR_AT90CAN128__
+  if (PINE & (1 << PINE4))
+#endif
   {
     debug(1);
   }
