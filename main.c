@@ -42,7 +42,7 @@ static void command_handler(void *args)
   switch (data->type) {
     case HEAD_CONTROL_READ:
       lsm303_get(&lsm303_anglesReal);
-      comport_reply_data((int16_t)ceil(lsm303_anglesReal.roll), (int16_t)ceil(lsm303_anglesReal.pitch),
+      comport_reply_data(motor_angleRotReal, (int16_t)ceil(lsm303_anglesReal.pitch),
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError);
@@ -54,14 +54,14 @@ static void command_handler(void *args)
       if (angleRotSigned != 0)
       {
         motor_rotInPosition = false;
-        motor_moveRot(angleRotSigned);
+        motor_moveRotAngle(angleRotSigned);
       }
       angleTiltSigned = ((data->angleTiltH & 0x7F) << 8) | data->angleTiltL;
       angleTiltSigned *= ((data->angleTiltH >> 7) ? -1 : 1);
       if (angleTiltSigned != 0)
       {
         motor_tiltInPosition = false;
-        motor_moveTilt(angleTiltSigned);
+        motor_moveTiltAngle(angleTiltSigned);
       }
       break;
     case HEAD_CONTROL_STOP:

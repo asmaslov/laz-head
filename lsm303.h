@@ -236,9 +236,9 @@ typedef struct {
 #define LSM303M_OUT_TEMP_H                  0x31
 #define LSM303M_OUT_TEMP_L                  0x32
 
-LSM303_VALUES lsm303_accelReal;
-LSM303_VALUES lsm303_magnetReal;
-LSM303_ANGLES lsm303_anglesReal;
+volatile LSM303_VALUES lsm303_accelReal;
+volatile LSM303_VALUES lsm303_magnetReal;
+volatile LSM303_ANGLES lsm303_anglesReal;
 
 void lsm303a_init(void);
 void lsm303m_init(void);
