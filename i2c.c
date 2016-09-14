@@ -55,7 +55,7 @@ begin:
       goto error;
   }
   TWDR = subAddr;  // Send sub-address byte
-  TWCR = (1 << TWINT) | (1 >> TWEN);
+  TWCR = (1 << TWINT) | (1 << TWEN);
   while (!(TWCR & (1 << TWINT)));
   twsr = TW_STATUS;
   switch (twsr)
@@ -83,23 +83,23 @@ begin:
       goto error;
   }
   TWDR = i2cAddr | TW_READ;  // Send address byte with read flag
-  TWCR = (1 << TWINT) | (1 >> TWEN);
+  TWCR = (1 << TWINT) | (1 << TWEN);
   while (!(TWCR & (1 << TWINT)));
   twsr = TW_STATUS;
   switch (twsr)
   {
-    case TW_MT_DATA_ACK:
+    case TW_MR_SLA_ACK:
       break;
-    case TW_MT_DATA_NACK:
+    case TW_MR_SLA_NACK:
       goto quit;
-    case TW_MT_ARB_LOST:
+    case TW_MR_ARB_LOST:
       goto begin;
     default:
       goto error;
   }
   while(len-- > 0)
   {
-    if (len != 1)
+    if (len != 0)
     {
       twcr = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
     }
@@ -168,7 +168,7 @@ begin:
       goto error;
   }
   TWDR = subAddr;  // Send sub-address byte
-  TWCR = (1 << TWINT) | (1 >> TWEN);
+  TWCR = (1 << TWINT) | (1 << TWEN);
   while (!(TWCR & (1 << TWINT)));
   twsr = TW_STATUS;
   switch (twsr)

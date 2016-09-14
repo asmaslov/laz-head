@@ -1,8 +1,8 @@
 #ifndef __LSM303_H__
 #define __LSM303_H__
 
-#define LSM303A_I2C_ADDR                    0x32
-#define LSM303M_I2C_ADDR                    0x3C
+#define LSM303A_I2C_ADDR  0x32
+#define LSM303M_I2C_ADDR  0x3C
 
 typedef struct {
   float x;
@@ -17,7 +17,6 @@ typedef struct {
 } LSM303_ANGLES;
 
 #define LSM303M_I2C_BURST_ADDR_BIT          (1 << 7)
-#define LSM303M_I2C_REG_READ_BIT            (1 << 0)
 
 #define LSM303A_CTRL_REG1                   0x20
 #define LSM303A_CTRL_REG1_ENABLE_X          (1 << 0)
@@ -237,6 +236,8 @@ typedef struct {
 #define LSM303M_OUT_TEMP_H                  0x31
 #define LSM303M_OUT_TEMP_L                  0x32
 
+LSM303_VALUES lsm303_accelReal;
+LSM303_VALUES lsm303_magnetReal;
 LSM303_ANGLES lsm303_anglesReal;
 
 void lsm303a_init(void);

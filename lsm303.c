@@ -1,53 +1,68 @@
 #include "lsm303.h"
 #include "i2c.h"
+
 #include <inttypes.h>
 #include <math.h>
 
-static void lsm303a_writeReg(uint8_t addr, uint8_t data)
+static void lsm303a_writeReg(uint8_t regAddr, uint8_t data)
 {
-  i2c_writeData(LSM303A_I2C_ADDR, addr, &data, 1);
+  i2c_writeData(LSM303A_I2C_ADDR, regAddr, &data, 1);
 }
 
-static void lsm303a_readReg(uint8_t addr, uint8_t *dest, uint16_t count)
+static void lsm303a_readReg(uint8_t regAddr, uint8_t *dest, uint16_t count)
 {
   if (count > 1)
   {
-    addr |= LSM303M_I2C_BURST_ADDR_BIT;
+    regAddr |= LSM303M_I2C_BURST_ADDR_BIT;
   }
-  i2c_readData(LSM303A_I2C_ADDR | LSM303M_I2C_REG_READ_BIT, addr, dest, count);
+  i2c_readData(LSM303A_I2C_ADDR, regAddr, dest, count);
 }
 
-static void lsm303m_writeReg(uint8_t addr, uint8_t data)
+static void lsm303m_writeReg(uint8_t regAddr, uint8_t data)
 {
-  i2c_writeData(LSM303M_I2C_ADDR, addr, &data, 1);
+  i2c_writeData(LSM303M_I2C_ADDR, regAddr, &data, 1);
 }
 
-static void lsm303m_readReg(uint8_t addr, uint8_t *dest, uint16_t count)
+static void lsm303m_readReg(uint8_t regAddr, uint8_t *dest, uint16_t count)
 {
   if (count > 1)
   {
-    addr |= LSM303M_I2C_BURST_ADDR_BIT;
+    regAddr |= LSM303M_I2C_BURST_ADDR_BIT;
   }
-  i2c_readData(LSM303M_I2C_ADDR | LSM303M_I2C_REG_READ_BIT, addr, dest, count);
+  i2c_readData(LSM303M_I2C_ADDR, regAddr, dest, count);
 }
 
 void lsm303a_init(void)
 {
+  uint8_t reg;
+  
+  lsm303_accelReal.x = 0;
+  lsm303_accelReal.y = 0;
+  lsm303_accelReal.z = 0;
   lsm303a_writeReg(LSM303A_CTRL_REG1,
                    LSM303A_CTRL_REG1_ENABLE_X |
                    LSM303A_CTRL_REG1_ENABLE_Y |
                    LSM303A_CTRL_REG1_ENABLE_Z |
                    LSM303A_CTRL_REG1_DATARATE_100_HZ);
+  lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1);
   lsm303a_writeReg(LSM303A_CTRL_REG4,
                    LSM303A_CTRL_REG4_FULLSCALE_4G);
+  lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1);
 }
 
 void lsm303m_init(void)
 {
+  uint8_t reg;
+  
+  lsm303_magnetReal.x = 0;
+  lsm303_magnetReal.y = 0;
+  lsm303_magnetReal.z = 0;
   lsm303m_writeReg(LSM303M_CRB_REG,
                    LSM303M_CRB_REG_FULLSCALE_1_3GA);
+  lsm303a_readReg(LSM303M_CRB_REG, &reg, 1);
   lsm303m_writeReg(LSM303M_MR_REG,
                    LSM303M_MR_REG_MODE_CONTINIOUS);
+  lsm303a_readReg(LSM303M_MR_REG, &reg, 1);
 }
 
 void lsm303a_read(LSM303_VALUES* accel)
@@ -59,7 +74,7 @@ void lsm303a_read(LSM303_VALUES* accel)
   lsm303a_readReg(LSM303A_OUT_X_L, buffer, 6);
   lsm303a_readReg(LSM303A_CTRL_REG4, ctrl, 2);
   lsm303a_readReg(LSM303A_STATUS_REG, &stat, 1);
-  
+
   if(ctrl[1] & LSM303A_CTRL_REG5_FIFO_ENABLE)
   {
     sens = LSM303A_SENSITIVITY_FIFO;
@@ -109,7 +124,7 @@ void lsm303m_read(LSM303_VALUES* magnet)
   
   lsm303m_readReg(LSM303M_OUT_X_H, buffer, 6);
   lsm303m_readReg(LSM303M_CRB_REG, &ctrl, 1);
-  lsm303m_readReg(LSM303A_STATUS_REG, &stat, 1);
+  lsm303a_readReg(LSM303M_SR_REG, &stat, 1);
   
   switch(ctrl & LSM303M_CRB_REG_FULLSCALE_MASK)
   {
@@ -154,6 +169,11 @@ void lsm303m_read(LSM303_VALUES* magnet)
 
 void lsm303_init(void)
 {
+  lsm303_anglesReal.roll = 0;
+  lsm303_anglesReal.pitch = 0;
+  lsm303_anglesReal.yaw = 0;
+  
+  i2c_setup();
   lsm303a_init();
   lsm303m_init();
 }

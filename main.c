@@ -40,8 +40,9 @@ static void command_handler(void *args)
   HeadPacket *data = (HeadPacket *)args;
   switch (data->type) {
     case HEAD_CONTROL_READ:
-      lsm303_get(&lsm303_anglesReal);
-      comport_reply_data((int16_t)lsm303_anglesReal.yaw, (int16_t)lsm303_anglesReal.pitch,
+      lsm303a_read(&lsm303_accelReal);
+      //lsm303_get(&lsm303_anglesReal);
+      comport_reply_data((int16_t)floor(lsm303_accelReal.x), (int16_t)floor(lsm303_accelReal.y),
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError);
