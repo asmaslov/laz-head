@@ -16,6 +16,9 @@ class MainWindow(QtGui.QMainWindow):
     ui = Ui_MainWindow()
     ser = serial.Serial()
     tim = QtCore.QTimer()
+    timPeriodMs = 100
+    req = QtCore.QTimer()
+    reqPeriodMs = 300
     
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -30,6 +33,7 @@ class MainWindow(QtGui.QMainWindow):
             group.addAction(node)
             self.ui.menuPort.addAction(node)
         self.tim.timeout.connect(self.readPort)
+        self.req.timeout.connect(self.on_pushButtonRead_released)
 
     def keyPressEvent(self, event):
         if type(event) == QtGui.QKeyEvent and not event.isAutoRepeat():
@@ -299,7 +303,8 @@ class MainWindow(QtGui.QMainWindow):
         except Exception, e:
             self.ui.statusbar.showMessage('Port ' + name + ' not available')
         if self.ser.isOpen():
-            self.tim.start(100)
+            self.tim.start(self.timPeriodMs)
+            self.req.start(self.reqPeriodMs)
             self.ui.statusbar.showMessage('Connected to ' + name)
 
     def readPort(self):
@@ -320,8 +325,8 @@ class MainWindow(QtGui.QMainWindow):
                         tiltAngle = int(((data[4] & 0x7F) << 8) | data[5])
                         if (data[4] & 0x80) != 0:
                             tiltAngle = -tiltAngle
-                        self.ui.lineEditRotAngle.setText(str(rotAngle))
-                        self.ui.lineEditTiltAngle.setText(str(tiltAngle))
+                        self.ui.lineEditRealRot.setText(str(rotAngle))
+                        self.ui.lineEditRealTilt.setText(str(tiltAngle))
                         messageText = ''
                         if (data[6] & (1 << 0)):
                             messageText = messageText + 'Rotate finsih'

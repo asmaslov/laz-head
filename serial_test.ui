@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
+    <width>430</width>
     <height>270</height>
    </rect>
   </property>
@@ -45,7 +45,7 @@
      <rect>
       <x>210</x>
       <y>30</y>
-      <width>91</width>
+      <width>61</width>
       <height>20</height>
      </rect>
     </property>
@@ -68,7 +68,7 @@
      <rect>
       <x>210</x>
       <y>80</y>
-      <width>91</width>
+      <width>61</width>
       <height>20</height>
      </rect>
     </property>
@@ -89,9 +89,9 @@
    <widget class="QLineEdit" name="lineEditRotSpeed">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>280</x>
       <y>30</y>
-      <width>91</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -99,7 +99,7 @@
    <widget class="QLabel" name="labelRotSpeed">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>280</x>
       <y>10</y>
       <width>71</width>
       <height>16</height>
@@ -112,9 +112,9 @@
    <widget class="QLineEdit" name="lineEditTiltSpeed">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>280</x>
       <y>80</y>
-      <width>91</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -122,7 +122,7 @@
    <widget class="QLabel" name="labelTiltSpeed">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>280</x>
       <y>60</y>
       <width>71</width>
       <height>16</height>
@@ -137,7 +137,7 @@
      <rect>
       <x>10</x>
       <y>120</y>
-      <width>401</width>
+      <width>411</width>
       <height>101</height>
      </rect>
     </property>
@@ -210,13 +210,59 @@
      <string>&gt;</string>
     </property>
    </widget>
+   <widget class="QLabel" name="labelRealTilt">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>60</y>
+      <width>61</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Real Tilt</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditRealTilt">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>80</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelRealRot">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>10</y>
+      <width>61</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Real Rotate</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditRealRot">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>30</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>420</width>
+     <width>430</width>
      <height>21</height>
     </rect>
    </property>
