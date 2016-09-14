@@ -1,5 +1,6 @@
 #include "lsm303.h"
 #include "i2c.h"
+#include "debug.h"
 
 #include <inttypes.h>
 #include <math.h>
@@ -46,7 +47,7 @@ void lsm303a_init(void)
                    LSM303A_CTRL_REG1_DATARATE_100_HZ);
   lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1);
   lsm303a_writeReg(LSM303A_CTRL_REG4,
-                   LSM303A_CTRL_REG4_FULLSCALE_4G);
+                   LSM303A_CTRL_REG4_FULLSCALE_2G);
   lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1);
 }
 
@@ -111,9 +112,9 @@ void lsm303a_read(LSM303_VALUES* accel)
     rawZ = (int16_t)(((uint16_t)buffer[5] << 8) | buffer[4]);
   }
   
-  accel->x = rawX * sens / 1000;
-  accel->y = rawY * sens / 1000;
-  accel->z = rawZ * sens / 1000;
+  accel->x = rawX * sens / 16;
+  accel->y = rawY * sens / 16;
+  accel->z = rawZ * sens / 16;
 }
 
 void lsm303m_read(LSM303_VALUES* magnet)
@@ -186,6 +187,9 @@ void lsm303_get(LSM303_ANGLES* angles)
   float tiltedX, tiltedY;
   
   lsm303a_read(&accel);
+  accel.x /= 100;
+  accel.y /= 100;
+  accel.z /= 100;
   lsm303m_read(&magnet);
   norm = sqrt(accel.x * accel.x + accel.y * accel.y + accel.z * accel.z);
   sinRoll = accel.y / norm;
@@ -195,8 +199,8 @@ void lsm303_get(LSM303_ANGLES* angles)
   tiltedX = magnet.x * cosPitch + magnet.z * sinPitch;
   tiltedY = magnet.x * sinRoll * sinPitch + magnet.y * cosRoll - magnet.z * sinRoll * cosPitch;
   cosYaw = tiltedX / sqrt(tiltedX * tiltedX + tiltedY * tiltedY);
-  angles->roll = (float)(acos(cosRoll) * 180 / M_PI);
-  angles->pitch = (float)(acos(cosPitch) * 180 / M_PI);
+  angles->roll = (float)(asin(sinRoll) * 180 / M_PI);
+  angles->pitch = (float)(asin(sinPitch) * 180 / M_PI);
   if(tiltedY > 0)
   {
     angles->yaw = (float)(acos(cosYaw) * 180 / M_PI);

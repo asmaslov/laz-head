@@ -5,6 +5,7 @@
 #include <avr/interrupt.h>
 #include <inttypes.h>
 #include <util/setbaud.h>
+#include <stdlib.h>
 
 #define RX_BUFFER_SIZE  HEAD_PACKET_LEN
 #define TX_BUFFER_SIZE  HEAD_PACKET_LEN

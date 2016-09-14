@@ -3,6 +3,7 @@
 #include <avr/wdt.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "head_config.h"
 #include "comport.h"
@@ -40,9 +41,8 @@ static void command_handler(void *args)
   HeadPacket *data = (HeadPacket *)args;
   switch (data->type) {
     case HEAD_CONTROL_READ:
-      lsm303a_read(&lsm303_accelReal);
-      //lsm303_get(&lsm303_anglesReal);
-      comport_reply_data((int16_t)floor(lsm303_accelReal.x), (int16_t)floor(lsm303_accelReal.y),
+      lsm303_get(&lsm303_anglesReal);
+      comport_reply_data((int16_t)ceil(lsm303_anglesReal.roll), (int16_t)ceil(lsm303_anglesReal.pitch),
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError);
