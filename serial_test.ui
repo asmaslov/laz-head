@@ -27,7 +27,7 @@
      <string>Move to ...</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonRead">
+   <widget class="QPushButton" name="pushButtonZero">
     <property name="geometry">
      <rect>
       <x>120</x>
@@ -37,7 +37,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Read</string>
+     <string>Go to zero</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEditRotAngle">

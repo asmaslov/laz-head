@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <math.h>
+#include <util/delay.h>
 
 #include "head_config.h"
 #include "comport.h"
@@ -88,7 +89,38 @@ static void command_handler(void *args)
             break;
         }
       }                  
-      break;    
+      break;
+    case HEAD_CONTROL_ZERO:
+      comport_reply_ack();
+      motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
+      while(!motor_rotInPosition);
+      motor_moveRotAngle(HEAD_ROTATE_RANGE_ANGLE / 2);
+      lsm303_get(&lsm303_anglesReal);
+      angleTiltSigned = (int16_t)ceil(lsm303_anglesReal.pitch);
+      if (angleTiltSigned != 0)
+      {
+        if (angleTiltSigned < 0)
+        {
+          motor_moveTilt(1);
+        }
+        else
+        {
+          motor_moveTilt(-1);
+        }
+      }
+      while(!motor_rotInPosition || motor_tiltMoving)
+      {
+        _delay_ms(100);
+        lsm303_get(&lsm303_anglesReal);
+        angleTiltSigned = (int16_t)ceil(lsm303_anglesReal.pitch);
+        if (angleTiltSigned == 0)
+        {
+          motor_stopTilt();
+        }
+      }
+      motor_angleRotReal = 0;
+      motor_angleTiltReal = 0;
+      break;
   }
 }
 

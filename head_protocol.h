@@ -9,6 +9,7 @@
 #define HEAD_CONTROL_MOVE_ANGLE  0x01
 #define HEAD_CONTROL_STOP        0x02
 #define HEAD_CONTROL_MOVE        0x03
+#define HEAD_CONTROL_ZERO        0x04
 
 #define HEAD_MOTOR_INDEX_ROTATE  0x00
 #define HEAD_MOTOR_INDEX_TILT    0x01

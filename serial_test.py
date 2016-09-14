@@ -33,7 +33,7 @@ class MainWindow(QtGui.QMainWindow):
             group.addAction(node)
             self.ui.menuPort.addAction(node)
         self.tim.timeout.connect(self.readPort)
-        self.req.timeout.connect(self.on_pushButtonRead_released)
+        self.req.timeout.connect(self.readData)
 
     def keyPressEvent(self, event):
         if type(event) == QtGui.QKeyEvent and not event.isAutoRepeat():
@@ -90,6 +90,11 @@ class MainWindow(QtGui.QMainWindow):
             self.ser.write(packet)
         else:
             self.ui.statusbar.showMessage('Port not open')
+
+    def readData(self):
+        packet = bytearray()
+        packet.append(0x00)
+        self.sendPacket(packet)
             
     def on_pushButtonMove_released(self):
         packet = bytearray()
@@ -122,9 +127,9 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.lineEditRotSpeed.clear()
         self.ui.lineEditTiltSpeed.clear()
 
-    def on_pushButtonRead_released(self):
+    def on_pushButtonZero_released(self):
         packet = bytearray()
-        packet.append(0x00)
+        packet.append(0x04)
         self.sendPacket(packet)
 
     def on_pushButtonLeft_pressed(self):
