@@ -24,7 +24,12 @@ static void _putchar(uint8_t c)
 {
   while (tx_counter == TX_BUFFER_SIZE);
   cli();
+#ifdef __AVR_ATmega16__
   if (tx_counter || ((UCSRA & (1 << UDRE)) == 0))
+#endif
+#ifdef __AVR_AT90CAN128__
+  if (tx_counter || ((UCSR0A & (1 << UDRE)) == 0))
+#endif
   {
     tx_buffer[tx_wr_index++] = c;
     if (tx_wr_index == TX_BUFFER_SIZE)
@@ -35,7 +40,12 @@ static void _putchar(uint8_t c)
   }
   else
   {
+#ifdef __AVR_ATmega16__
     UDR = c;
+#endif
+#ifdef __AVR_AT90CAN128__
+    UDR0 = c;
+#endif
   }
   sei();
 }
@@ -55,12 +65,22 @@ static uint8_t _getchar(void)
   return data;
 }
 
+#ifdef __AVR_ATmega16__
 ISR(USART_TXC_vect)
+#endif
+#ifdef __AVR_AT90CAN128__
+ISR(USART0_TX_vect)
+#endif
 {
   if (tx_counter)
   {
     --tx_counter;
+  #ifdef __AVR_ATmega16__
     UDR = tx_buffer[tx_rd_index++];
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    UDR0 = tx_buffer[tx_rd_index++];
+  #endif
     if (tx_rd_index == TX_BUFFER_SIZE)
     {
       tx_rd_index = 0;
@@ -159,12 +179,24 @@ void comport_parse(void)
   }
 }
 
+#ifdef __AVR_ATmega16__
 ISR(USART_RXC_vect)
+#endif
+#ifdef __AVR_AT90CAN128__
+ISR(USART0_RX_vect)
+#endif
 {
   uint8_t status, data;
+#ifdef __AVR_ATmega16__
   status = UCSRA;
   data = UDR;
   if ((status & ((1 << FE) | (1 << PE) | (1 << DOR))) == 0)
+#endif
+#ifdef __AVR_AT90CAN128__
+  status = UCSR0A;
+  data = UDR0;
+  if ((status & ((1 << FE) | (1 << UPE) | (1 << DOR))) == 0)
+#endif
   {
     rx_buffer[rx_wr_index++] = data;
     if (rx_wr_index == RX_BUFFER_SIZE)
@@ -185,15 +217,37 @@ ISR(USART_RXC_vect)
 
 void comport_setup(ParserHandler handler)
 {
+#ifdef __AVR_ATmega16__
   UBRRH = UBRRH_VALUE;
   UBRRL = UBRRL_VALUE;
+#endif
+#ifdef __AVR_AT90CAN128__
+  UBRR0H = UBRRH_VALUE;
+  UBRR0L = UBRRL_VALUE;
+#endif
 #if USE_2X
+#ifdef __AVR_ATmega16__
   UCSRA |= (1 << U2X);
+#endif
+#ifdef __AVR_AT90CAN128__
+  UCSR0A |= (1 << U2X);
+#endif
 #else
+#ifdef __AVR_ATmega16__
   UCSRA &= ~(1 << U2X);
 #endif
+#ifdef __AVR_AT90CAN128__
+  UCSR0A &= ~(1 << U2X);
+#endif
+#endif
+#ifdef __AVR_ATmega16__
   UCSRB = (1 << TXEN) | (1 << RXEN) | (1 << TXCIE) | (1 << RXCIE);
   UCSRC = (1 << URSEL) | (1 << UCSZ0) | (1 << UCSZ1);
+#endif
+#ifdef __AVR_AT90CAN128__
+  UCSR0B = (1 << TXEN) | (1 << RXEN) | (1 << TXCIE) | (1 << RXCIE);
+  UCSR0C = (1 << UCSZ0) | (1 << UCSZ1);
+#endif
   parser_handler = handler;
   comport_is_data_to_parse = false;
   packet_received = false;
@@ -226,7 +280,6 @@ void comport_reply_data(int16_t angleRot, int16_t angleTilt,
                         bool rotError, bool tiltError)
 {
   HeadPacket transmitted_message;
-  uint8_t i;
   
   transmitted_message.unit = PC_ADDR;
   transmitted_message.type = HEAD_REPLY_DATA;

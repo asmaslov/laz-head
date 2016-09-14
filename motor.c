@@ -123,12 +123,22 @@ void motor_setup(void)
   OCR1A = (uint16_t)ocr;
   timerRotConfig = (1 << WGM12) | (((div >> 2) & 1) << CS12) | (((div >> 1) & 1) << CS11) | (((div >> 0) & 1) << CS10);
 
+#ifdef __AVR_ATmega16__
   TCCR2 = 0x00;
+#endif
+#ifdef __AVR_AT90CAN128__
+  TCCR2A = 0x00;
+#endif
   div = 0;
   do {
     ocr = (F_CPU / (1000 * prescale2[++div])) * MOTOR_TILT_TIMER_STEP_MS - 1;
   } while (ocr > UINT8_MAX);
+#ifdef __AVR_ATmega16__
   OCR2 = (uint8_t)ocr;
+#endif
+#ifdef __AVR_AT90CAN128__
+  OCR2A = (uint8_t)ocr;
+#endif
   timerTiltConfig = (1 << WGM21) | (((div >> 2) & 1) << CS22) | (((div >> 1) & 1) << CS21) | (((div >> 0) & 1) << CS20);
 }
 
@@ -163,7 +173,12 @@ void motor_moveRotAngle(int16_t deltaAngle)
       motor_rotInPosition = false;
       controlRotAngle = true;
       TCCR1B = timerRotConfig;
+    #ifdef __AVR_ATmega16__
       TIMSK |= (1 << OCIE1A);
+    #endif
+    #ifdef __AVR_AT90CAN128__
+      TIMSK1 |= (1 << OCIE1A);
+    #endif
       TCNT1 = 0;
     }
     if((angleRotPref - motor_angleRotReal) < 0)
@@ -174,7 +189,12 @@ void motor_moveRotAngle(int16_t deltaAngle)
       motor_rotInPosition = false;
       controlRotAngle = true;
       TCCR1B = timerRotConfig;
+    #ifdef __AVR_ATmega16__
       TIMSK |= (1 << OCIE1A);
+    #endif
+    #ifdef __AVR_AT90CAN128__
+      TIMSK1 |= (1 << OCIE1A);
+    #endif
       TCNT1 = 0;      
     }
   }
@@ -210,8 +230,14 @@ void motor_moveTiltAngle(int16_t deltaAngle)
       motor_tiltMoving = true;
       motor_tiltInPosition = false;
       controlTiltAngle = true;
+    #ifdef __AVR_ATmega16__
       TCCR2 = timerTiltConfig;
       TIMSK |= (1 << OCIE2);
+    #endif
+    #ifdef __AVR_AT90CAN128__
+      TCCR2A = timerTiltConfig;
+      TIMSK2 |= (1 << OCIE2A);    
+    #endif
       TCNT2 = 0;
     }
     if((angleTiltPref - motor_angleTiltReal) < 0)
@@ -221,8 +247,14 @@ void motor_moveTiltAngle(int16_t deltaAngle)
       motor_tiltMoving = true;
       motor_tiltInPosition = false;
       controlTiltAngle = true;
+    #ifdef __AVR_ATmega16__
       TCCR2 = timerTiltConfig;
       TIMSK |= (1 << OCIE2);
+    #endif
+    #ifdef __AVR_AT90CAN128__
+      TCCR2A = timerTiltConfig;
+      TIMSK2 |= (1 << OCIE2A);
+    #endif
       TCNT2 = 0;    
     }    
   }
@@ -231,7 +263,12 @@ void motor_moveTiltAngle(int16_t deltaAngle)
 void motor_stopRot(void)
 {
   PORTB &= ~(MOTOR_ROT_LEFT | MOTOR_ROT_RIGHT);
+#ifdef __AVR_ATmega16__
   TIMSK &= ~(1 << OCIE1A);
+#endif
+#ifdef __AVR_AT90CAN128__
+  TIMSK1 &= ~(1 << OCIE1A);
+#endif
   TCCR1A = 0x00;
   TCCR1B = 0x00;
   motor_rotMoving = false;
@@ -243,8 +280,14 @@ void motor_stopRot(void)
 void motor_stopTilt(void)
 {
   PORTB &= ~(MOTOR_TILT_LEFT | MOTOR_TILT_RIGHT);
+#ifdef __AVR_ATmega16__
   TIMSK &= ~(1 << OCIE2);
   TCCR2 = 0x00;
+#endif
+#ifdef __AVR_AT90CAN128__
+  TIMSK2 &= ~(1 << OCIE2A);
+  TCCR2A = 0x00;
+#endif
   motor_tiltMoving = false;
   speedTilt = 0;
   controlTiltAngle = false;
@@ -275,7 +318,12 @@ void motor_moveRot(uint8_t speed)
     motor_rotMoving = true;
     motor_rotInPosition = false;
     TCCR1B = timerRotConfig;
+  #ifdef __AVR_ATmega16__
     TIMSK |= (1 << OCIE1A);
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    TIMSK1 |= (1 << OCIE1A);
+  #endif
     TCNT1 = 0;
   }
   else
@@ -285,7 +333,12 @@ void motor_moveRot(uint8_t speed)
     motor_rotMoving = true;
     motor_rotInPosition = false;
     TCCR1B = timerRotConfig;
+  #ifdef __AVR_ATmega16__
     TIMSK |= (1 << OCIE1A);
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    TIMSK1 |= (1 << OCIE1A);
+  #endif
     TCNT1 = 0;     
   }
 }
@@ -313,8 +366,14 @@ void motor_moveTilt(uint8_t speed)
     speedTilt = 1;
     motor_tiltMoving = true;
     motor_tiltInPosition = false;
+  #ifdef __AVR_ATmega16__
     TCCR2 = timerTiltConfig;
     TIMSK |= (1 << OCIE2);
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    TCCR2A = timerTiltConfig;
+    TIMSK2 |= (1 << OCIE2A);
+  #endif
     TCNT2 = 0;
   }
   else
@@ -323,8 +382,14 @@ void motor_moveTilt(uint8_t speed)
     speedTilt = -1;
     motor_tiltMoving = true;
     motor_tiltInPosition = false;
+  #ifdef __AVR_ATmega16__
     TCCR2 = timerTiltConfig;
     TIMSK |= (1 << OCIE2);
+  #endif
+  #ifdef __AVR_AT90CAN128__
+    TCCR2A = timerTiltConfig;
+    TIMSK2 |= (1 << OCIE2A);
+  #endif
     TCNT2 = 0; 
   }
 }
