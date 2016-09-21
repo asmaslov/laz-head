@@ -5,65 +5,107 @@
 #include <inttypes.h>
 #include <math.h>
 
-static void lsm303a_writeReg(uint8_t regAddr, uint8_t data)
+static bool lsm303a_writeReg(uint8_t regAddr, uint8_t data)
 {
-  i2c_writeData(LSM303A_I2C_ADDR, regAddr, &data, 1);
+  if (i2c_writeData(LSM303A_I2C_ADDR, regAddr, &data, 1) != 1)
+  {
+    return false;
+  }
+  return true;
 }
 
-static void lsm303a_readReg(uint8_t regAddr, uint8_t *dest, uint16_t count)
+static bool lsm303a_readReg(uint8_t regAddr, uint8_t *dest, uint16_t count)
 {
   if (count > 1)
   {
     regAddr |= LSM303M_I2C_BURST_ADDR_BIT;
   }
-  i2c_readData(LSM303A_I2C_ADDR, regAddr, dest, count);
+  if (i2c_readData(LSM303A_I2C_ADDR, regAddr, dest, count) != count)
+  {
+    return false;
+  }
+  return true;
 }
 
-static void lsm303m_writeReg(uint8_t regAddr, uint8_t data)
+static bool lsm303m_writeReg(uint8_t regAddr, uint8_t data)
 {
-  i2c_writeData(LSM303M_I2C_ADDR, regAddr, &data, 1);
+  if (i2c_writeData(LSM303M_I2C_ADDR, regAddr, &data, 1) != 1)
+  {
+    return false;
+  }
+  return true;
 }
 
-static void lsm303m_readReg(uint8_t regAddr, uint8_t *dest, uint16_t count)
+static bool lsm303m_readReg(uint8_t regAddr, uint8_t *dest, uint16_t count)
 {
   if (count > 1)
   {
     regAddr |= LSM303M_I2C_BURST_ADDR_BIT;
   }
-  i2c_readData(LSM303M_I2C_ADDR, regAddr, dest, count);
+  if (i2c_readData(LSM303M_I2C_ADDR, regAddr, dest, count) != count)
+  {
+    return false;
+  }
+  return true;
 }
 
-void lsm303a_init(void)
+bool lsm303a_init(void)
 {
   uint8_t reg;
   
   lsm303_accelReal.x = 0;
   lsm303_accelReal.y = 0;
   lsm303_accelReal.z = 0;
-  lsm303a_writeReg(LSM303A_CTRL_REG1,
-                   LSM303A_CTRL_REG1_ENABLE_X |
-                   LSM303A_CTRL_REG1_ENABLE_Y |
-                   LSM303A_CTRL_REG1_ENABLE_Z |
-                   LSM303A_CTRL_REG1_DATARATE_100_HZ);
-  lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1);
-  lsm303a_writeReg(LSM303A_CTRL_REG4,
-                   LSM303A_CTRL_REG4_FULLSCALE_2G);
-  lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1);
+  if (!lsm303a_writeReg(LSM303A_CTRL_REG1,
+                        LSM303A_CTRL_REG1_ENABLE_X |
+                        LSM303A_CTRL_REG1_ENABLE_Y |
+                        LSM303A_CTRL_REG1_ENABLE_Z |
+                        LSM303A_CTRL_REG1_DATARATE_100_HZ))
+  {
+    return false;
+  }
+  if (!lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1))
+  {
+    return false;
+  }
+  if (!lsm303a_writeReg(LSM303A_CTRL_REG4,
+                        LSM303A_CTRL_REG4_FULLSCALE_2G))
+  {
+    return false;
+  }
+  if (!lsm303a_readReg(LSM303A_CTRL_REG1, &reg, 1))
+  {
+    return false;
+  }
+  return true;
 }
 
-void lsm303m_init(void)
+bool lsm303m_init(void)
 {
   uint8_t reg;
   
   lsm303_magnetReal.x = 0;
   lsm303_magnetReal.y = 0;
   lsm303_magnetReal.z = 0;
-  lsm303m_writeReg(LSM303M_CRB_REG,
-                   LSM303M_CRB_REG_FULLSCALE_1_3GA);
-  lsm303a_readReg(LSM303M_CRB_REG, &reg, 1);
-  lsm303m_writeReg(LSM303M_MR_REG,
-                   LSM303M_MR_REG_MODE_CONTINIOUS);
-  lsm303a_readReg(LSM303M_MR_REG, &reg, 1);
+  if (!lsm303m_writeReg(LSM303M_CRB_REG,
+                        LSM303M_CRB_REG_FULLSCALE_1_3GA))
+  {
+    return false;
+  }
+  if (!lsm303a_readReg(LSM303M_CRB_REG, &reg, 1))
+  {
+    return false;    
+  }
+  if (!lsm303m_writeReg(LSM303M_MR_REG,
+                        LSM303M_MR_REG_MODE_CONTINIOUS))
+  {
+    return false;
+  }
+  if (!lsm303a_readReg(LSM303M_MR_REG, &reg, 1))
+  {
+    return false;    
+  }
+  return true;
 }
 
 void lsm303a_read(LSM303_VALUES* accel)
@@ -168,15 +210,22 @@ void lsm303m_read(LSM303_VALUES* magnet)
   magnet->z = rawZ * 1000 * sensZ; 
 }
 
-void lsm303_init(void)
+bool lsm303_init(void)
 {
   lsm303_anglesReal.roll = 0;
   lsm303_anglesReal.pitch = 0;
   lsm303_anglesReal.yaw = 0;
   
   i2c_setup();
-  lsm303a_init();
-  lsm303m_init();
+  if (!lsm303a_init())
+  {
+    return false;
+  }
+  if (!lsm303m_init())
+  {
+    return false;    
+  }
+  return true;
 }
 
 void lsm303_get(LSM303_ANGLES* angles)

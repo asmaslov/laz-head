@@ -1,6 +1,8 @@
 #ifndef __LSM303_H__
 #define __LSM303_H__
 
+#include <stdbool.h>
+
 #define LSM303A_I2C_ADDR  0x32
 #define LSM303M_I2C_ADDR  0x3C
 
@@ -240,13 +242,15 @@ volatile LSM303_VALUES lsm303_accelReal;
 volatile LSM303_VALUES lsm303_magnetReal;
 volatile LSM303_ANGLES lsm303_anglesReal;
 
-void lsm303a_init(void);
-void lsm303m_init(void);
+bool lsm303_used;
+
+bool lsm303a_init(void);
+bool lsm303m_init(void);
 
 void lsm303a_read(LSM303_VALUES* values);
 void lsm303m_read(LSM303_VALUES* values);
 
-void lsm303_init(void);
+bool lsm303_init(void);
 void lsm303_get(LSM303_ANGLES* angles);
 
 #endif // __LSM303_H__

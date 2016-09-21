@@ -45,7 +45,7 @@ typedef union {
         unsigned char tiltMoving : 1;
         unsigned char rotError : 1;
         unsigned char tiltError : 1;
-        unsigned char __status_bit_6 : 1;
+        unsigned char gyroUsed : 1;
         unsigned char __status_bit_7 : 1;
       };
       unsigned char speedLimitRot;

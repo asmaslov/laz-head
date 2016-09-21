@@ -9,5 +9,6 @@
 #define PC_ADDR    0xA1
 
 #define HEAD_ROTATE_RANGE_ANGLE  60
+#define HEAD_TILT_RANGE_ANGLE    100
 
 #endif // __HEAD_CONFIG_H__
