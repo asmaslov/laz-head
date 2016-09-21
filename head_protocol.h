@@ -10,6 +10,7 @@
 #define HEAD_CONTROL_STOP        0x02
 #define HEAD_CONTROL_MOVE        0x03
 #define HEAD_CONTROL_ZERO        0x04
+#define HEAD_CONTROL_FIRE        0x05
 
 #define HEAD_MOTOR_INDEX_ROTATE  0x00
 #define HEAD_MOTOR_INDEX_TILT    0x01
@@ -38,6 +39,16 @@ typedef union {
     };
     union {
       unsigned char motorIndex;
+      struct {
+        unsigned char triggerActivate : 1;
+        unsigned char triggerFire : 1;
+        unsigned char __fire_bit_2 : 1;
+        unsigned char __fire_bit_3 : 1;
+        unsigned char __fire_bit_4 : 1;
+        unsigned char __fire_bit_5 : 1;
+        unsigned char __fire_bit_6 : 1;
+        unsigned char __fire_bit_7 : 1;
+      };
       struct {
         unsigned char rotInPosition : 1;
         unsigned char tiltInPosition : 1;

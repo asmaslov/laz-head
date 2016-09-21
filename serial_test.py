@@ -19,6 +19,8 @@ class MainWindow(QtGui.QMainWindow):
     timPeriodMs = 100
     req = QtCore.QTimer()
     reqPeriodMs = 300
+    triggerActivateStatus = 0
+    triggerFireStatus = 0
     
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -45,6 +47,11 @@ class MainWindow(QtGui.QMainWindow):
                 self.on_pushButtonLeft_pressed()
             elif event.key() == QtCore.Qt.Key_D:
                 self.on_pushButtonRight_pressed()
+            elif event.key() == QtCore.Qt.Key_Shift:
+                self.ui.pushButtonTriggerActivate.setChecked(True)
+                self.on_pushButtonTriggerActivate_clicked(True)
+            elif event.key() == QtCore.Qt.Key_Control:
+                self.on_pushButtonTriggerFire_pressed()
             event.accept()
         else:
             event.ignore()
@@ -59,6 +66,11 @@ class MainWindow(QtGui.QMainWindow):
                 self.on_pushButtonLeft_released()
             elif event.key() == QtCore.Qt.Key_D:
                 self.on_pushButtonRight_released()
+            elif event.key() == QtCore.Qt.Key_Shift:
+                self.ui.pushButtonTriggerActivate.setChecked(False)
+                self.on_pushButtonTriggerActivate_clicked(False)
+            elif event.key() == QtCore.Qt.Key_Control:
+                self.on_pushButtonTriggerFire_released()
             event.accept()
         else:
             event.ignore()
@@ -271,7 +283,33 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x01)
         self.sendPacket(packet)
         self.ui.lineEditTiltSpeed.clear()
-    
+
+    def sendFirePacket(self):
+        packet = bytearray()
+        packet.append(0x05)
+        packet.append(0x00)
+        packet.append(0x00)
+        packet.append(0x00)
+        packet.append(0x00)
+        packet.append((self.triggerActivateStatus << 0) | (self.triggerFireStatus << 1))
+        self.sendPacket(packet)
+
+    @QtCore.pyqtSlot(bool)
+    def on_pushButtonTriggerActivate_clicked(self, arg):
+        if arg:
+            self.triggerActivateStatus = 1
+        else:
+            self.triggerActivateStatus = 0
+        self.sendFirePacket()
+
+    def on_pushButtonTriggerFire_pressed(self):
+        self.triggerFireStatus = 1
+        self.sendFirePacket()
+
+    def on_pushButtonTriggerFire_released(self):
+        self.triggerFireStatus = 0
+        self.sendFirePacket()
+
     @QtCore.pyqtSlot(bool)
     def on_actionOpen_triggered(self, arg):
         name = QtGui.QFileDialog.getOpenFileName(self)
@@ -333,19 +371,20 @@ class MainWindow(QtGui.QMainWindow):
                         self.ui.lineEditRealRot.setText(str(rotAngle))
                         self.ui.lineEditRealTilt.setText(str(tiltAngle))
                         messageText = ''
+                        if (data[6] & (1 << 6)):
+                            messageText = messageText + 'Using gyroscope '
                         if (data[6] & (1 << 0)):
-                            messageText = messageText + 'Rotate finsih'
+                            messageText = messageText + 'Rotate finsih '
                         if (data[6] & (1 << 2)):
-                            messageText = messageText + 'Rotate active'
+                            messageText = messageText + 'Rotate active '
                         if (data[6] & (1 << 4)):
-                            messageText = messageText + 'Rotate error'
-                        messageText = messageText + ' '    
+                            messageText = messageText + 'Rotate error '
                         if (data[6] & (1 << 1)):
-                            messageText = messageText + 'Tilt finsih'
+                            messageText = messageText + 'Tilt finsih '
                         if (data[6] & (1 << 3)):
-                            messageText = messageText + 'Tilt active'
+                            messageText = messageText + 'Tilt active '
                         if (data[6] & (1 << 5)):
-                            messageText = messageText + 'Tilt error'
+                            messageText = messageText + 'Tilt error '
                         self.ui.statusbar.showMessage(messageText)
                     else:
                         self.ui.statusbar.showMessage('Unknown')

@@ -11,4 +11,7 @@
 #define HEAD_ROTATE_RANGE_ANGLE  60
 #define HEAD_TILT_RANGE_ANGLE    100
 
+#define HEAD_FIRE_TRIGGER_ACTIVATE  (1 << PC6)
+#define HEAD_FIRE_TRIGGER_FIRE      (1 << PC7)
+
 #endif // __HEAD_CONFIG_H__

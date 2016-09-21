@@ -19,7 +19,7 @@ static void init_board(void)
   PORTB = 0x00;
   DDRB = (1 << DDB0) | (1 << DDB1) | (1 << DDB2) | (1 << DDB3);
   PORTC = 0x00;
-  DDRC = 0x00;
+  DDRC = (1 << DDC6) | (1 << DDC7);
 #ifdef __AVR_ATmega16__
   PORTD = (1 << PD7);
   DDRD = (1 << DDD7);
@@ -144,6 +144,25 @@ static void command_handler(void *args)
       }
       motor_angleRotReal = 0;
       motor_angleTiltReal = 0;
+      break;
+    case HEAD_CONTROL_FIRE:
+      comport_reply_ack();
+      if (data->triggerActivate)
+      {
+        PORTC |= HEAD_FIRE_TRIGGER_ACTIVATE;
+      }
+      else
+      {
+        PORTC &= ~HEAD_FIRE_TRIGGER_ACTIVATE;
+      }
+      if (data->triggerFire)
+      {
+        PORTC |= HEAD_FIRE_TRIGGER_FIRE;
+      }
+      else
+      {
+        PORTC &= ~HEAD_FIRE_TRIGGER_FIRE;
+      }
       break;
   }
 }
