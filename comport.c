@@ -281,7 +281,7 @@ void comport_reply_data(int16_t angleRot, int16_t angleTilt,
                         bool rotInPosition, bool tiltInPosition,
                         bool rotMoving, bool tiltMoving,
                         bool rotError, bool tiltError,
-                        bool gyroUsed)
+                        bool gyroUsed, bool gyroError)
 {
   HeadPacket transmitted_message;
   
@@ -298,6 +298,7 @@ void comport_reply_data(int16_t angleRot, int16_t angleTilt,
   transmitted_message.rotError = rotError;
   transmitted_message.tiltError = tiltError;
   transmitted_message.gyroUsed = gyroUsed;
+  transmitted_message.gyroError = gyroError;
   transmitted_message.crc = 0;
   _putchar(transmitted_message.unit);
   transmitted_message.crc += transmitted_message.unit;

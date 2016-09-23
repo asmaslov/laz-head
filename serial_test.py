@@ -18,7 +18,7 @@ class MainWindow(QtGui.QMainWindow):
     tim = QtCore.QTimer()
     timPeriodMs = 100
     req = QtCore.QTimer()
-    reqPeriodMs = 300
+    reqPeriodMs = 500
     triggerActivateStatus = 0
     triggerFireStatus = 0
     
@@ -373,6 +373,8 @@ class MainWindow(QtGui.QMainWindow):
                         messageText = ''
                         if (data[6] & (1 << 6)):
                             messageText = messageText + 'Using gyroscope '
+                        if (data[6] & (1 << 7)):
+                            messageText = messageText + 'Gyroscope error '
                         if (data[6] & (1 << 0)):
                             messageText = messageText + 'Rotate finsih '
                         if (data[6] & (1 << 2)):

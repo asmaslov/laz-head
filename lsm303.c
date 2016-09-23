@@ -14,13 +14,12 @@ static uint8_t timerConfig = 0;
 
 ISR(TIMER0_COMP_vect)
 {
-  debug(1);
   wdt_reset();
   timerStep++;
-  if (timerStep > 10)
+  if (timerStep > 100)
   {
     timerStep = 0;
-    lsm303_get(&lsm303_anglesReal);  
+    lsm303_get(&lsm303_anglesReal);
   }
 }
 
@@ -127,106 +126,115 @@ bool lsm303m_init(void)
   return true;
 }
 
-void lsm303a_read(LSM303_VALUES* accel)
+bool lsm303a_read(LSM303_VALUES* accel)
 {
   uint8_t buffer[6], ctrl[2], stat;
   int16_t rawX, rawY, rawZ;
   float sens;
   
-  lsm303a_readReg(LSM303A_OUT_X_L, buffer, 6);
-  lsm303a_readReg(LSM303A_CTRL_REG4, ctrl, 2);
-  lsm303a_readReg(LSM303A_STATUS_REG, &stat, 1);
-
-  if(ctrl[1] & LSM303A_CTRL_REG5_FIFO_ENABLE)
+  if (lsm303a_readReg(LSM303A_OUT_X_L, buffer, 6) &&
+      lsm303a_readReg(LSM303A_CTRL_REG4, ctrl, 2) &&
+      lsm303a_readReg(LSM303A_STATUS_REG, &stat, 1))
   {
-    sens = LSM303A_SENSITIVITY_FIFO;
-  }
-  else
-  {
-    switch(ctrl[0] & LSM303A_CTRL_REG4_FULLSCALE_MASK)
+    if(ctrl[1] & LSM303A_CTRL_REG5_FIFO_ENABLE)
     {
-      case LSM303A_CTRL_REG4_FULLSCALE_2G:
-        sens = LSM303A_SENSITIVITY_2G;
-        break;
-      case LSM303A_CTRL_REG4_FULLSCALE_4G:
-        sens = LSM303A_SENSITIVITY_4G;
-        break;
-      case LSM303A_CTRL_REG4_FULLSCALE_8G:
-        sens = LSM303A_SENSITIVITY_8G;
-        break;
-      case LSM303A_CTRL_REG4_FULLSCALE_16G:
-        sens = LSM303A_SENSITIVITY_16G;
-        break;
+    sens = LSM303A_SENSITIVITY_FIFO;
     }
-  }
+    else
+    {
+      switch(ctrl[0] & LSM303A_CTRL_REG4_FULLSCALE_MASK)
+      {
+        case LSM303A_CTRL_REG4_FULLSCALE_2G:
+          sens = LSM303A_SENSITIVITY_2G;
+          break;
+        case LSM303A_CTRL_REG4_FULLSCALE_4G:
+          sens = LSM303A_SENSITIVITY_4G;
+          break;
+        case LSM303A_CTRL_REG4_FULLSCALE_8G:
+          sens = LSM303A_SENSITIVITY_8G;
+          break;
+        case LSM303A_CTRL_REG4_FULLSCALE_16G:
+          sens = LSM303A_SENSITIVITY_16G;
+          break;
+      }
+    }
   
-  if(ctrl[0] & LSM303A_CTRL_REG4_BIG_ENDIAN)
-  {
+    if(ctrl[0] & LSM303A_CTRL_REG4_BIG_ENDIAN)
+    {
     rawX = (int16_t)(((uint16_t)buffer[0] << 8) | buffer[1]);
     rawY = (int16_t)(((uint16_t)buffer[2] << 8) | buffer[3]);
     rawZ = (int16_t)(((uint16_t)buffer[4] << 8) | buffer[5]);
-  }
-  else
-  {
+    }
+    else
+    {
     rawX = (int16_t)(((uint16_t)buffer[1] << 8) | buffer[0]);
     rawY = (int16_t)(((uint16_t)buffer[3] << 8) | buffer[2]);
     rawZ = (int16_t)(((uint16_t)buffer[5] << 8) | buffer[4]);
-  }
+    }
   
-  accel->x = rawX * sens / 16;
-  accel->y = rawY * sens / 16;
-  accel->z = rawZ * sens / 16;
+    accel->x = rawX * sens / 16;
+    accel->y = rawY * sens / 16;
+    accel->z = rawZ * sens / 16;
+	
+	return true;
+  }
+  return false;
 }
 
-void lsm303m_read(LSM303_VALUES* magnet)
+bool lsm303m_read(LSM303_VALUES* magnet)
 {
   uint8_t buffer[6], ctrl, stat;
   int16_t rawX, rawY, rawZ;
   float sensXY, sensZ;
   
-  lsm303m_readReg(LSM303M_OUT_X_H, buffer, 6);
-  lsm303m_readReg(LSM303M_CRB_REG, &ctrl, 1);
-  lsm303a_readReg(LSM303M_SR_REG, &stat, 1);
-  
-  switch(ctrl & LSM303M_CRB_REG_FULLSCALE_MASK)
+  if(lsm303m_readReg(LSM303M_OUT_X_H, buffer, 6) &&
+     lsm303m_readReg(LSM303M_CRB_REG, &ctrl, 1) &&
+     lsm303a_readReg(LSM303M_SR_REG, &stat, 1))
   {
-  case LSM303M_CRB_REG_FULLSCALE_1_3GA:
-    sensXY = LSM303M_SENSITIVITY_XY_1_3GA;
-    sensZ = LSM303M_SENSITIVITY_Z_1_3GA;
-    break;
-  case LSM303M_CRB_REG_FULLSCALE_1_9GA:
-    sensXY = LSM303M_SENSITIVITY_XY_1_9GA;
-    sensZ = LSM303M_SENSITIVITY_Z_1_9GA;
-    break;
-  case LSM303M_CRB_REG_FULLSCALE_2_5GA:
-    sensXY = LSM303M_SENSITIVITY_XY_2_5GA;
-    sensZ = LSM303M_SENSITIVITY_Z_2_5GA;
-    break;
-  case LSM303M_CRB_REG_FULLSCALE_4_GA:
-    sensXY = LSM303M_SENSITIVITY_XY_4GA;
-    sensZ = LSM303M_SENSITIVITY_Z_4GA;
-    break;
-  case LSM303M_CRB_REG_FULLSCALE_4_7_GA:
-    sensXY = LSM303M_SENSITIVITY_XY_4_7GA;
-    sensZ = LSM303M_SENSITIVITY_Z_4_7GA;
-    break;
-  case LSM303M_CRB_REG_FULLSCALE_5_6_GA:
-    sensXY = LSM303M_SENSITIVITY_XY_5_6GA;
-    sensZ = LSM303M_SENSITIVITY_Z_5_6GA;
-    break;
-  case LSM303M_CRB_REG_FULLSCALE_8_1_GA:
-    sensXY = LSM303M_SENSITIVITY_XY_8_1GA;
-    sensZ = LSM303M_SENSITIVITY_Z_8_1GA;
-    break;
-  }
+  
+    switch(ctrl & LSM303M_CRB_REG_FULLSCALE_MASK)
+    {
+    case LSM303M_CRB_REG_FULLSCALE_1_3GA:
+      sensXY = LSM303M_SENSITIVITY_XY_1_3GA;
+      sensZ = LSM303M_SENSITIVITY_Z_1_3GA;
+      break;
+    case LSM303M_CRB_REG_FULLSCALE_1_9GA:
+      sensXY = LSM303M_SENSITIVITY_XY_1_9GA;
+      sensZ = LSM303M_SENSITIVITY_Z_1_9GA;
+      break;
+    case LSM303M_CRB_REG_FULLSCALE_2_5GA:
+      sensXY = LSM303M_SENSITIVITY_XY_2_5GA;
+      sensZ = LSM303M_SENSITIVITY_Z_2_5GA;
+      break;
+    case LSM303M_CRB_REG_FULLSCALE_4_GA:
+      sensXY = LSM303M_SENSITIVITY_XY_4GA;
+      sensZ = LSM303M_SENSITIVITY_Z_4GA;
+      break;
+    case LSM303M_CRB_REG_FULLSCALE_4_7_GA:
+      sensXY = LSM303M_SENSITIVITY_XY_4_7GA;
+      sensZ = LSM303M_SENSITIVITY_Z_4_7GA;
+      break;
+    case LSM303M_CRB_REG_FULLSCALE_5_6_GA:
+      sensXY = LSM303M_SENSITIVITY_XY_5_6GA;
+      sensZ = LSM303M_SENSITIVITY_Z_5_6GA;
+      break;
+    case LSM303M_CRB_REG_FULLSCALE_8_1_GA:
+      sensXY = LSM303M_SENSITIVITY_XY_8_1GA;
+      sensZ = LSM303M_SENSITIVITY_Z_8_1GA;
+      break;
+    }
 
-  rawX = (int16_t)(((uint16_t)buffer[0] << 8) + buffer[1]);
-  rawY = (int16_t)(((uint16_t)buffer[2] << 8) + buffer[3]);
-  rawZ = (int16_t)(((uint16_t)buffer[4] << 8) + buffer[5]);
+    rawX = (int16_t)(((uint16_t)buffer[0] << 8) + buffer[1]);
+    rawY = (int16_t)(((uint16_t)buffer[2] << 8) + buffer[3]);
+    rawZ = (int16_t)(((uint16_t)buffer[4] << 8) + buffer[5]);
    
-  magnet->x = rawX * 1000 * sensXY;
-  magnet->y = rawY * 1000 * sensXY;
-  magnet->z = rawZ * 1000 * sensZ; 
+    magnet->x = rawX * 1000 * sensXY;
+    magnet->y = rawY * 1000 * sensXY;
+    magnet->z = rawZ * 1000 * sensZ;
+	
+	return true;
+  }
+  return false;
 }
 
 bool lsm303_init(void)
@@ -234,6 +242,8 @@ bool lsm303_init(void)
   uint8_t div;
   uint32_t mul;
   uint32_t ocr;
+  
+  lsm303_error = false;
   
   lsm303_anglesReal.roll = 0;
   lsm303_anglesReal.pitch = 0;
@@ -256,7 +266,7 @@ bool lsm303_init(void)
 #endif
   div = 0;
   do {
-    ocr = (F_CPU / (1000 * prescale0[++div])) * (LSM303M_TIMER_STEP_MS / 10) - 1;
+    ocr = (F_CPU / (1000 * prescale0[++div])) * (LSM303M_TIMER_STEP_MS / 100) - 1;
   } while (ocr > UINT8_MAX);
 #ifdef __AVR_ATmega16__
   OCR0 = (uint8_t)ocr;
@@ -281,34 +291,40 @@ void lsm303_start(void)
   TCNT0 = 0;
 }
 
-void lsm303_get(LSM303_ANGLES* angles)
+bool lsm303_get(LSM303_ANGLES* angles)
 {
   LSM303_VALUES accel, magnet;
   float norm;
   float sinRoll, cosRoll, sinPitch, cosPitch, cosYaw;
   float tiltedX, tiltedY;
   
-  lsm303a_read(&accel);
-  accel.x /= 100;
-  accel.y /= 100;
-  accel.z /= 100;
-  lsm303m_read(&magnet);
-  norm = sqrt(accel.x * accel.x + accel.y * accel.y + accel.z * accel.z);
-  sinRoll = accel.y / norm;
-  cosRoll = sqrt(1.0 - (sinRoll * sinRoll));
-  sinPitch = accel.x / norm;
-  cosPitch = sqrt(1.0 - (sinPitch * sinPitch));
-  tiltedX = magnet.x * cosPitch + magnet.z * sinPitch;
-  tiltedY = magnet.x * sinRoll * sinPitch + magnet.y * cosRoll - magnet.z * sinRoll * cosPitch;
-  cosYaw = tiltedX / sqrt(tiltedX * tiltedX + tiltedY * tiltedY);
-  angles->roll = (float)(asin(sinRoll) * 180 / M_PI);
-  angles->pitch = (float)(asin(sinPitch) * 180 / M_PI);
-  if(tiltedY > 0)
+  if (lsm303a_read(&accel) &&
+      lsm303m_read(&magnet))
   {
-    angles->yaw = (float)(acos(cosYaw) * 180 / M_PI);
-  }  
-  else
-  {
-    angles->yaw = 360 - (float)(acos(cosYaw) * 180 / M_PI);
+	lsm303_error = false;
+    accel.x /= 100;
+    accel.y /= 100;
+    accel.z /= 100;
+    norm = sqrt(accel.x * accel.x + accel.y * accel.y + accel.z * accel.z);
+    sinRoll = accel.y / norm;
+    cosRoll = sqrt(1.0 - (sinRoll * sinRoll));
+    sinPitch = accel.x / norm;
+    cosPitch = sqrt(1.0 - (sinPitch * sinPitch));
+    tiltedX = magnet.x * cosPitch + magnet.z * sinPitch;
+    tiltedY = magnet.x * sinRoll * sinPitch + magnet.y * cosRoll - magnet.z * sinRoll * cosPitch;
+    cosYaw = tiltedX / sqrt(tiltedX * tiltedX + tiltedY * tiltedY);
+    angles->roll = (float)(asin(sinRoll) * 180 / M_PI);
+    angles->pitch = (float)(asin(sinPitch) * 180 / M_PI);
+    if(tiltedY > 0)
+    {
+      angles->yaw = (float)(acos(cosYaw) * 180 / M_PI);
+    }  
+    else
+    {
+      angles->yaw = 360 - (float)(acos(cosYaw) * 180 / M_PI);
+    }
+	return true;
   }
+  lsm303_error = true;
+  return false;
 }

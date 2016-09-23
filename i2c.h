@@ -7,6 +7,7 @@
 
 #define I2C_FREQUENCY_HZ  100000
 #define I2C_MAX_ITER      10
+#define I2C_TIMEOUT_TC    1000
 
 void i2c_setup(void);
 int i2c_readData(uint8_t i2cAddr, uint8_t subAddr, uint8_t* data, int len);

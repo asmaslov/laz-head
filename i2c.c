@@ -18,7 +18,7 @@ void i2c_setup(void)
 int i2c_readData(uint8_t i2cAddr, uint8_t subAddr, uint8_t *data, int len)
 {
   uint8_t twcr, twsr;
-  int n = 0, total = 0;
+  int n = 0, t, total = 0;
 
   cli();
 restart:
@@ -28,7 +28,8 @@ restart:
   }
 begin:
   TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);  // Send start condition
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -42,7 +43,8 @@ begin:
   }
   TWDR = i2cAddr | TW_WRITE;  // Send address byte with write flag
   TWCR = (1 << TWINT) | (1 << TWEN);
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -57,7 +59,8 @@ begin:
   }
   TWDR = subAddr;  // Send sub-address byte
   TWCR = (1 << TWINT) | (1 << TWEN);
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -71,7 +74,8 @@ begin:
       goto error;
   }
   TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);  // Send repeated start condition
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -85,7 +89,8 @@ begin:
   }
   TWDR = i2cAddr | TW_READ;  // Send address byte with read flag
   TWCR = (1 << TWINT) | (1 << TWEN);
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -109,7 +114,8 @@ begin:
       twcr = (1 << TWINT) | (1 << TWEN);  // Last byte
     }  
     TWCR = twcr;
-    while (!(TWCR & (1 << TWINT)));
+    t = I2C_TIMEOUT_TC;
+    while (!(TWCR & (1 << TWINT)) && (--t > 0));
     twsr = TW_STATUS;
     switch (twsr)
     {
@@ -135,7 +141,7 @@ error:
 int i2c_writeData(uint8_t i2cAddr, uint8_t subAddr, uint8_t* data, int len)
 {
   uint8_t twsr;
-  int n = 0, total = 0;
+  int n = 0, t, total = 0;
   
   cli();
 restart:
@@ -143,7 +149,8 @@ restart:
     return -1;
 begin:
   TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);  // Send start condition
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -157,7 +164,8 @@ begin:
   }
   TWDR = i2cAddr | TW_WRITE;  // Send address byte with write flag
   TWCR = (1 << TWINT) | (1 << TWEN);
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -172,7 +180,8 @@ begin:
   }
   TWDR = subAddr;  // Send sub-address byte
   TWCR = (1 << TWINT) | (1 << TWEN);
-  while (!(TWCR & (1 << TWINT)));
+  t = I2C_TIMEOUT_TC;
+  while (!(TWCR & (1 << TWINT)) && (--t > 0));
   twsr = TW_STATUS;
   switch (twsr)
   {
@@ -189,7 +198,8 @@ begin:
   {
     TWDR = *data++;  // Send data byte
     TWCR = (1 << TWINT) | (1 << TWEN);
-    while (!(TWCR & (1 << TWINT)));
+    t = I2C_TIMEOUT_TC;
+    while (!(TWCR & (1 << TWINT)) && (--t > 0));
     twsr = TW_STATUS;
     switch (twsr)
     {

@@ -42,22 +42,19 @@ static void command_handler(void *args)
   HeadPacket *data = (HeadPacket *)args;
   switch (data->type) {
     case HEAD_CONTROL_READ:
-      if (lsm303_used)
-      {
-        comport_reply_data(motor_angleRotReal, (int16_t)floor((&lsm303_anglesReal)->pitch),
-                           motor_rotInPosition, motor_tiltInPosition,
-                           motor_rotMoving, motor_tiltMoving,
-                           motor_rotError, motor_tiltError,
-                           lsm303_used);
-      }
-      else
-      {
-        comport_reply_data(motor_angleRotReal, motor_angleTiltReal,
-                           motor_rotInPosition, motor_tiltInPosition,
-                           motor_rotMoving, motor_tiltMoving,
-                           motor_rotError, motor_tiltError,
-                           lsm303_used);
-      }
+    #ifdef HEAD_GYROSCOPE_REALTIME
+      comport_reply_data(motor_angleRotReal, (int16_t)floor((&lsm303_anglesReal)->pitch),
+                         motor_rotInPosition, motor_tiltInPosition,
+                         motor_rotMoving, motor_tiltMoving,
+                         motor_rotError, motor_tiltError,
+                         lsm303_used, lsm303_error);
+    #else
+      comport_reply_data(motor_angleRotReal, motor_angleTiltReal,
+                         motor_rotInPosition, motor_tiltInPosition,
+                         motor_rotMoving, motor_tiltMoving,
+                         motor_rotError, motor_tiltError,
+                         lsm303_used, lsm303_error);
+    #endif
       break;
     case HEAD_CONTROL_MOVE_ANGLE:
       comport_reply_ack();
@@ -103,30 +100,14 @@ static void command_handler(void *args)
       break;
     case HEAD_CONTROL_ZERO:
       comport_reply_ack();
-      if (lsm303_used)
+      if (lsm303_used && lsm303_get(&lsm303_anglesReal))
       {
-        motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
-        while(!motor_rotInPosition);
-        motor_moveRotAngle(HEAD_ROTATE_RANGE_ANGLE / 2);
         angleTiltSigned = (int16_t)floor(lsm303_anglesReal.pitch);
-        if (angleTiltSigned != 0)
-        {
-          if (angleTiltSigned < 0)
-          {
-            motor_moveTilt(1);
-          }
-          else
-          {
-            motor_moveTilt(-1);
-          }
-        }
-        while(!motor_rotInPosition || motor_tiltMoving)
-        {
-          if ((int16_t)floor(lsm303_anglesReal.pitch) == 0)
-          {
-            motor_stopTilt();
-          }
-        }
+        motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
+		motor_moveTiltAngle(-angleTiltSigned);
+        while(!motor_rotInPosition || !motor_tiltInPosition);
+        motor_moveRotAngle(HEAD_ROTATE_RANGE_ANGLE / 2);
+        while(!motor_rotInPosition);
       }
       else
       {
@@ -169,27 +150,20 @@ int main(void)
   init_board();  
   comport_setup(command_handler);
   motor_setup();
-  //
-  deblink(2);
-  //
   lsm303_used = lsm303_init();
-  //lsm303_used = false;
-  if (lsm303_used)
+  if (lsm303_used && lsm303_get(&lsm303_anglesReal))
   {
-    deblink(1);
+    motor_angleTiltReal = (int16_t)floor(lsm303_anglesReal.pitch);
   }
-  else
-  {
-    deblink(2);
-  }
-  //debug(1);
+  debug(1);
   sei();
-  wdt_enable(WDTO_120MS);
+  wdt_enable(WDTO_1S);
+#ifdef HEAD_GYROSCOPE_REALTIME
   if (lsm303_used)
   {
     lsm303_start();
-  }  
-
+  }
+#endif
   while(1)
   {
     wdt_reset();

@@ -7,7 +7,7 @@
 #define LSM303A_I2C_ADDR  0x32
 #define LSM303M_I2C_ADDR  0x3C
 
-#define LSM303M_TIMER_STEP_MS  100
+#define LSM303M_TIMER_STEP_MS  200
 
 typedef struct {
   float x;
@@ -246,15 +246,16 @@ LSM303_VALUES lsm303_magnetReal;
 LSM303_ANGLES lsm303_anglesReal;
 
 bool lsm303_used;
+bool lsm303_error;
 
 bool lsm303a_init(void);
 bool lsm303m_init(void);
 
-void lsm303a_read(LSM303_VALUES* values);
-void lsm303m_read(LSM303_VALUES* values);
+bool lsm303a_read(LSM303_VALUES* values);
+bool lsm303m_read(LSM303_VALUES* values);
 
 bool lsm303_init(void);
 void lsm303_start(void);
-void lsm303_get(LSM303_ANGLES* angles);
+bool lsm303_get(LSM303_ANGLES* angles);
 
 #endif // __LSM303_H__
