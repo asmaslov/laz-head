@@ -22,6 +22,7 @@ int i2c_readData(uint8_t i2cAddr, uint8_t subAddr, uint8_t *data, int len)
 
   cli();
 restart:
+  TWCR &= ~(1 << TWEN);
   if (n++ >= I2C_MAX_ITER)
   {
     sei();
@@ -147,6 +148,7 @@ int i2c_writeData(uint8_t i2cAddr, uint8_t subAddr, uint8_t* data, int len)
   
   cli();
 restart:
+  TWCR &= ~(1 << TWEN);
   if (n++ >= I2C_MAX_ITER)
   {
     sei();
