@@ -156,7 +156,7 @@ int main(void)
     motor_angleTiltReal = (int16_t)floor(lsm303_anglesReal.pitch);
   }
   sei();
-  wdt_enable(WDTO_1S);
+  wdt_enable(WDTO_250MS);
 #ifdef HEAD_GYROSCOPE_REALTIME
   if (lsm303_used)
   {

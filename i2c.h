@@ -5,7 +5,7 @@
 
 #include <inttypes.h>
 
-#define I2C_FREQUENCY_HZ  50000
+#define I2C_FREQUENCY_HZ  100000
 #define I2C_MAX_ITER      10
 #define I2C_TIMEOUT_TC    1000
 

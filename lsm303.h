@@ -7,7 +7,7 @@
 #define LSM303A_I2C_ADDR  0x32
 #define LSM303M_I2C_ADDR  0x3C
 
-#define LSM303M_TIMER_STEP_MS  200
+#define LSM303M_TIMER_STEP_MS  100
 
 typedef struct {
   float x;
