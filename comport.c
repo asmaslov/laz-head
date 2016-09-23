@@ -142,7 +142,9 @@ void comport_parse(void)
     if ((rec_byte == HEAD_CONTROL_READ) ||
         (rec_byte == HEAD_CONTROL_MOVE_ANGLE) ||
         (rec_byte == HEAD_CONTROL_STOP) ||
-        (rec_byte == HEAD_CONTROL_MOVE))
+        (rec_byte == HEAD_CONTROL_MOVE) ||
+        (rec_byte == HEAD_CONTROL_ZERO) ||
+        (rec_byte == HEAD_CONTROL_FIRE))
     {
       received_message.type = rec_byte;
       received_part_index = 2;

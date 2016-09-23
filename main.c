@@ -44,8 +44,7 @@ static void command_handler(void *args)
     case HEAD_CONTROL_READ:
       if (lsm303_used)
       {
-        lsm303_get(&lsm303_anglesReal);
-        comport_reply_data(motor_angleRotReal, (int16_t)ceil(lsm303_anglesReal.pitch),
+        comport_reply_data(motor_angleRotReal, (int16_t)floor((&lsm303_anglesReal)->pitch),
                            motor_rotInPosition, motor_tiltInPosition,
                            motor_rotMoving, motor_tiltMoving,
                            motor_rotError, motor_tiltError,
@@ -109,8 +108,7 @@ static void command_handler(void *args)
         motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
         while(!motor_rotInPosition);
         motor_moveRotAngle(HEAD_ROTATE_RANGE_ANGLE / 2);
-        lsm303_get(&lsm303_anglesReal);
-        angleTiltSigned = (int16_t)ceil(lsm303_anglesReal.pitch);
+        angleTiltSigned = (int16_t)floor(lsm303_anglesReal.pitch);
         if (angleTiltSigned != 0)
         {
           if (angleTiltSigned < 0)
@@ -124,10 +122,7 @@ static void command_handler(void *args)
         }
         while(!motor_rotInPosition || motor_tiltMoving)
         {
-          _delay_ms(100);
-          lsm303_get(&lsm303_anglesReal);
-          angleTiltSigned = (int16_t)ceil(lsm303_anglesReal.pitch);
-          if (angleTiltSigned == 0)
+          if ((int16_t)floor(lsm303_anglesReal.pitch) == 0)
           {
             motor_stopTilt();
           }
@@ -169,15 +164,34 @@ static void command_handler(void *args)
 
 int main(void)
 {
-  cli(); 
-  init_board();
+  cli();
+  wdt_disable();
+  init_board();  
   comport_setup(command_handler);
   motor_setup();
+  //
+  deblink(2);
+  //
   lsm303_used = lsm303_init();
-  debug(1);
+  //lsm303_used = false;
+  if (lsm303_used)
+  {
+    deblink(1);
+  }
+  else
+  {
+    deblink(2);
+  }
+  //debug(1);
   sei();
+  wdt_enable(WDTO_120MS);
+  if (lsm303_used)
+  {
+    lsm303_start();
+  }  
 
   while(1)
   {
+    wdt_reset();
   }
 }

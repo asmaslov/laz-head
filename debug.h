@@ -1,6 +1,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
+#include "head_config.h"
 #include <avr/io.h>
 #include <inttypes.h>
 #include <util/delay.h>
@@ -27,12 +28,16 @@ static inline void debug(uint8_t on)
   }
 }
 
-static inline void deblink(void)
+static inline void deblink(int t)
 {
-  debug(1);
-  _delay_ms(250);
-  debug(0);
-  _delay_ms(250);
+  int i;
+  for (i = 0; i < t; i++)
+  {
+    debug(1);
+    _delay_ms(2500);
+    debug(0);
+    _delay_ms(2500);
+  }
 }
 
 static inline void debinv(void)

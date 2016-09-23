@@ -1,10 +1,13 @@
 #ifndef __LSM303_H__
 #define __LSM303_H__
 
+#include <inttypes.h>
 #include <stdbool.h>
 
 #define LSM303A_I2C_ADDR  0x32
 #define LSM303M_I2C_ADDR  0x3C
+
+#define LSM303M_TIMER_STEP_MS  100
 
 typedef struct {
   float x;
@@ -238,9 +241,9 @@ typedef struct {
 #define LSM303M_OUT_TEMP_H                  0x31
 #define LSM303M_OUT_TEMP_L                  0x32
 
-volatile LSM303_VALUES lsm303_accelReal;
-volatile LSM303_VALUES lsm303_magnetReal;
-volatile LSM303_ANGLES lsm303_anglesReal;
+LSM303_VALUES lsm303_accelReal;
+LSM303_VALUES lsm303_magnetReal;
+LSM303_ANGLES lsm303_anglesReal;
 
 bool lsm303_used;
 
@@ -251,6 +254,7 @@ void lsm303a_read(LSM303_VALUES* values);
 void lsm303m_read(LSM303_VALUES* values);
 
 bool lsm303_init(void);
+void lsm303_start(void);
 void lsm303_get(LSM303_ANGLES* angles);
 
 #endif // __LSM303_H__

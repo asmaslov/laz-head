@@ -18,10 +18,10 @@
 #define MOTOR_TILT_MIN_ANGLE -360
 #define MOTOR_TILT_MAX_ANGLE 360
 
-bool motor_rotInPosition;
-bool motor_tiltInPosition;
-bool motor_rotMoving;
-bool motor_tiltMoving;
+volatile bool motor_rotInPosition;
+volatile bool motor_tiltInPosition;
+volatile bool motor_rotMoving;
+volatile bool motor_tiltMoving;
 bool motor_rotError;
 bool motor_tiltError;
 int16_t motor_angleRotReal;

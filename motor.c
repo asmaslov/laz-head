@@ -4,6 +4,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 #include <stdlib.h>
 
 static const uint32_t prescale1[6] = {0, 1, 8, 64, 256, 1024};
@@ -24,6 +25,7 @@ static uint8_t timerTiltConfig = 0;
 
 ISR(TIMER1_COMPA_vect)
 {
+  wdt_reset();
   timerRotStep++;
   if(timerRotStep > MOTOR_ROT_STEPS_IN_ANGLE)
   {
@@ -63,6 +65,7 @@ ISR(TIMER1_COMPA_vect)
 
 ISR(TIMER2_COMP_vect)
 {
+  wdt_reset();
   timerTiltStep++;
   if (timerTiltStep > MOTOR_TILT_STEPS_IN_ANGLE)
   {

@@ -2,8 +2,27 @@
 #include "i2c.h"
 #include "debug.h"
 
+#include <avr/interrupt.h>
+#include <avr/wdt.h>
 #include <inttypes.h>
 #include <math.h>
+
+static const uint32_t prescale0[6] = {0, 1, 8, 64, 256, 1024};
+  
+static uint32_t timerStep = 0;
+static uint8_t timerConfig = 0;
+
+ISR(TIMER0_COMP_vect)
+{
+  debug(1);
+  wdt_reset();
+  timerStep++;
+  if (timerStep > 10)
+  {
+    timerStep = 0;
+    lsm303_get(&lsm303_anglesReal);  
+  }
+}
 
 static bool lsm303a_writeReg(uint8_t regAddr, uint8_t data)
 {
@@ -212,6 +231,10 @@ void lsm303m_read(LSM303_VALUES* magnet)
 
 bool lsm303_init(void)
 {
+  uint8_t div;
+  uint32_t mul;
+  uint32_t ocr;
+  
   lsm303_anglesReal.roll = 0;
   lsm303_anglesReal.pitch = 0;
   lsm303_anglesReal.yaw = 0;
@@ -225,7 +248,37 @@ bool lsm303_init(void)
   {
     return false;    
   }
+#ifdef __AVR_ATmega16__
+  TCCR0 = 0x00;
+#endif
+#ifdef __AVR_AT90CAN128__
+  TCCR0A = 0x00;
+#endif
+  div = 0;
+  do {
+    ocr = (F_CPU / (1000 * prescale0[++div])) * (LSM303M_TIMER_STEP_MS / 10) - 1;
+  } while (ocr > UINT8_MAX);
+#ifdef __AVR_ATmega16__
+  OCR0 = (uint8_t)ocr;
+#endif
+#ifdef __AVR_AT90CAN128__
+  OCR0A = (uint8_t)ocr;
+#endif
+  timerConfig = (1 << WGM01) | (((div >> 2) & 1) << CS02) | (((div >> 1) & 1) << CS01) | (((div >> 0) & 1) << CS00);
   return true;
+}
+
+void lsm303_start(void)
+{
+#ifdef __AVR_ATmega16__
+  TCCR0 = timerConfig;
+  TIMSK |= (1 << OCIE0);
+#endif
+#ifdef __AVR_AT90CAN128__
+  TCCR0A = timerConfig;
+  TIMSK0 |= (1 << OCIE0A);
+#endif
+  TCNT0 = 0;
 }
 
 void lsm303_get(LSM303_ANGLES* angles)
