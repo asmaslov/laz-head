@@ -24,6 +24,7 @@ int i2c_readData(uint8_t i2cAddr, uint8_t subAddr, uint8_t *data, int len)
 restart:
   if (n++ >= I2C_MAX_ITER)
   {
+    sei();
     return -1;
   }
 begin:
@@ -39,6 +40,7 @@ begin:
     case TW_MT_ARB_LOST:
       goto begin;
     default:
+      sei();
       return -1;
   }
   TWDR = i2cAddr | TW_WRITE;  // Send address byte with write flag
@@ -146,7 +148,10 @@ int i2c_writeData(uint8_t i2cAddr, uint8_t subAddr, uint8_t* data, int len)
   cli();
 restart:
   if (n++ >= I2C_MAX_ITER)
+  {
+    sei();
     return -1;
+  }	
 begin:
   TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);  // Send start condition
   t = I2C_TIMEOUT_TC;
@@ -160,6 +165,7 @@ begin:
     case TW_MT_ARB_LOST:
       goto begin;
     default:
+      sei();
       return -1;
   }
   TWDR = i2cAddr | TW_WRITE;  // Send address byte with write flag

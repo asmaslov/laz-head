@@ -147,7 +147,7 @@ int main(void)
 {
   cli();
   wdt_disable();
-  init_board();  
+  init_board();
   comport_setup(command_handler);
   motor_setup();
   lsm303_used = lsm303_init();
@@ -155,7 +155,6 @@ int main(void)
   {
     motor_angleTiltReal = (int16_t)floor(lsm303_anglesReal.pitch);
   }
-  debug(1);
   sei();
   wdt_enable(WDTO_1S);
 #ifdef HEAD_GYROSCOPE_REALTIME
