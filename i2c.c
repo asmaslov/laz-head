@@ -153,7 +153,7 @@ restart:
   {
     sei();
     return -1;
-  }	
+  }
 begin:
   TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);  // Send start condition
   t = I2C_TIMEOUT_TC;

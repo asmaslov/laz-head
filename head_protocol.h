@@ -42,7 +42,7 @@ typedef union {
       struct {
         unsigned char triggerActivate : 1;
         unsigned char triggerFire : 1;
-        unsigned char __fire_bit_2 : 1;
+        unsigned char triggerSingle : 1;
         unsigned char __fire_bit_3 : 1;
         unsigned char __fire_bit_4 : 1;
         unsigned char __fire_bit_5 : 1;

@@ -21,6 +21,7 @@ class MainWindow(QtGui.QMainWindow):
     reqPeriodMs = 500
     triggerActivateStatus = 0
     triggerFireStatus = 0
+    triggerSingleStatus = 0
     
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -291,7 +292,7 @@ class MainWindow(QtGui.QMainWindow):
         packet.append(0x00)
         packet.append(0x00)
         packet.append(0x00)
-        packet.append((self.triggerActivateStatus << 0) | (self.triggerFireStatus << 1))
+        packet.append((self.triggerActivateStatus << 0) | (self.triggerFireStatus << 1) | (self.triggerSingleStatus << 2))
         self.sendPacket(packet)
 
     @QtCore.pyqtSlot(bool)
@@ -300,15 +301,22 @@ class MainWindow(QtGui.QMainWindow):
             self.triggerActivateStatus = 1
         else:
             self.triggerActivateStatus = 0
+            self.triggerFireStatus = 0
         self.sendFirePacket()
 
     def on_pushButtonTriggerFire_pressed(self):
-        self.triggerFireStatus = 1
-        self.sendFirePacket()
+        if self.triggerActivateStatus == 1:
+            self.triggerFireStatus = 1
+            self.sendFirePacket()
+        else:
+            self.triggerSingleStatus = 1
+            self.sendFirePacket()
+            self.triggerSingleStatus = 0
 
     def on_pushButtonTriggerFire_released(self):
-        self.triggerFireStatus = 0
-        self.sendFirePacket()
+        if self.triggerActivateStatus == 1:
+            self.triggerFireStatus = 0
+            self.sendFirePacket()
 
     @QtCore.pyqtSlot(bool)
     def on_actionOpen_triggered(self, arg):

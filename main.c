@@ -38,6 +38,7 @@ static void command_handler(void *args)
 {
   int16_t angleRotSigned;
   int16_t angleTiltSigned;
+  uint8_t i, delay;
 
   HeadPacket *data = (HeadPacket *)args;
   switch (data->type) {
@@ -104,7 +105,7 @@ static void command_handler(void *args)
       {
         angleTiltSigned = (int16_t)floor(lsm303_anglesReal.pitch);
         motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
-		motor_moveTiltAngle(-angleTiltSigned);
+        motor_moveTiltAngle(-angleTiltSigned);
         while(!motor_rotInPosition || !motor_tiltInPosition);
         motor_moveRotAngle(HEAD_ROTATE_RANGE_ANGLE / 2);
         while(!motor_rotInPosition);
@@ -138,6 +139,24 @@ static void command_handler(void *args)
       else
       {
         PORTC &= ~HEAD_FIRE_TRIGGER_FIRE;
+      }
+      if (data->triggerSingle)
+      {
+        PORTC |= HEAD_FIRE_TRIGGER_ACTIVATE;
+        delay = HEAD_FIRE_SINGLE_ACTIVATE_DELAY_MS / 10;
+        for (i = 0; i < delay; i++)
+        {
+          _delay_ms(100);
+          wdt_reset();
+        }
+        PORTC |= HEAD_FIRE_TRIGGER_FIRE;
+        delay = HEAD_FIRE_SINGLE_FIRE_TIME_MS / 10;
+        for (i = 0; i < delay; i++)
+        {
+          _delay_ms(100);
+          wdt_reset();
+        }
+        PORTC &= ~(HEAD_FIRE_TRIGGER_ACTIVATE | HEAD_FIRE_TRIGGER_FIRE);
       }
       break;
   }

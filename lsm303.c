@@ -175,8 +175,8 @@ bool lsm303a_read(LSM303_VALUES* accel)
     accel->x = rawX * sens / 16;
     accel->y = rawY * sens / 16;
     accel->z = rawZ * sens / 16;
-	
-	return true;
+  
+    return true;
   }
   return false;
 }
@@ -231,8 +231,8 @@ bool lsm303m_read(LSM303_VALUES* magnet)
     magnet->x = rawX * 1000 * sensXY;
     magnet->y = rawY * 1000 * sensXY;
     magnet->z = rawZ * 1000 * sensZ;
-	
-	return true;
+  
+    return true;
   }
   return false;
 }
@@ -240,7 +240,6 @@ bool lsm303m_read(LSM303_VALUES* magnet)
 bool lsm303_init(void)
 {
   uint8_t div;
-  uint32_t mul;
   uint32_t ocr;
   
   lsm303_error = false;
@@ -301,7 +300,7 @@ bool lsm303_get(LSM303_ANGLES* angles)
   if (lsm303a_read(&accel) &&
       lsm303m_read(&magnet))
   {
-	lsm303_error = false;
+    lsm303_error = false;
     accel.x /= 100;
     accel.y /= 100;
     accel.z /= 100;
@@ -323,7 +322,7 @@ bool lsm303_get(LSM303_ANGLES* angles)
     {
       angles->yaw = 360 - (float)(acos(cosYaw) * 180 / M_PI);
     }
-	return true;
+    return true;
   }
   lsm303_error = true;
   return false;
