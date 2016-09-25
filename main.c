@@ -112,16 +112,16 @@ static void command_handler(void *args)
           debug(1);
           motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
           motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE - 2 * MOTOR_ROT_GAP);
-          while(!motor_rotInPosition || !motor_tiltInPosition);
+          while(motor_rotMoving || motor_tiltMoving);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
           motor_moveRotAngle((HEAD_ROTATE_RANGE_ANGLE / 2) + MOTOR_ROT_GAP);
-          while(!motor_rotInPosition);
+          while(motor_rotMoving);
           debug(0);
         }
         else
         {
           motor_moveRotAngle(-motor_angleRotReal);
-          while(!motor_rotInPosition || !motor_tiltInPosition);    
+          while(motor_rotMoving || motor_tiltMoving);    
         }
       }
       else
@@ -133,12 +133,12 @@ static void command_handler(void *args)
           motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
           motor_moveTiltAngle(-HEAD_TILT_RANGE_ANGLE - 2 * MOTOR_TILT_GAP);
           motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE - 2 * MOTOR_ROT_GAP);
-          while(!motor_rotInPosition || !motor_tiltInPosition);
+          while(motor_rotMoving || motor_tiltMoving);
           motor_angleTiltReal = MOTOR_TILT_MIN_ANGLE - MOTOR_TILT_GAP;    
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
           motor_moveTiltAngle((HEAD_TILT_RANGE_ANGLE / 2) + MOTOR_TILT_GAP);
           motor_moveRotAngle((HEAD_ROTATE_RANGE_ANGLE / 2) + MOTOR_ROT_GAP);
-          while(!motor_rotInPosition || !motor_tiltInPosition)
+          while(motor_rotMoving || motor_tiltMoving)
           debug(0);
         }
         else
