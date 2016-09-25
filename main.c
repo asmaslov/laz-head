@@ -106,7 +106,7 @@ static void command_handler(void *args)
       if (lsm303_used && lsm303_get(&lsm303_anglesReal))
       {
         angleTiltSigned = (int16_t)floor(lsm303_anglesReal.pitch);
-        motor_moveTiltAngle(-angleTiltSigned);
+        motor_moveTiltAngle(angleTiltSigned);
         if (first)
         {
           debug(1);
