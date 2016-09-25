@@ -300,22 +300,15 @@ void motor_stopTilt(void)
 void motor_moveRot(uint8_t speed)
 {
   motor_stopRot();
-#ifdef MOTOR_ROT_MIN_ANGLE  
-  if (motor_angleRotReal <= MOTOR_ROT_MIN_ANGLE)
-  {
-    motor_rotError = true;
-    return;
-  }
-#endif
-#ifdef MOTOR_ROT_MAX_ANGLE  
-  if (motor_angleRotReal >= MOTOR_ROT_MAX_ANGLE)
-  {
-    motor_rotError = true;
-    return;
-  }
-#endif
   if ((speed & 0x80) == 0)
   {
+  #ifdef MOTOR_ROT_MAX_ANGLE  
+    if (motor_angleRotReal >= MOTOR_ROT_MAX_ANGLE)
+    {
+      motor_rotError = true;
+      return;
+    }
+  #endif
     PORTB |= MOTOR_ROT_RIGHT;
     speedRot = 1;
     motor_rotMoving = true;
@@ -331,6 +324,13 @@ void motor_moveRot(uint8_t speed)
   }
   else
   {
+  #ifdef MOTOR_ROT_MIN_ANGLE  
+    if (motor_angleRotReal <= MOTOR_ROT_MIN_ANGLE)
+    {
+      motor_rotError = true;
+      return;
+    }
+  #endif
     PORTB |= MOTOR_ROT_LEFT;
     speedRot = -1;
     motor_rotMoving = true;
@@ -349,22 +349,15 @@ void motor_moveRot(uint8_t speed)
 void motor_moveTilt(uint8_t speed)
 {
   motor_stopTilt();
-#ifdef MOTOR_TILT_MIN_ANGLE  
-  if (motor_angleTiltReal <= MOTOR_TILT_MIN_ANGLE)
-  {
-    motor_tiltError = true;
-    return;
-  }
-#endif
-#ifdef MOTOR_TILT_MAX_ANGLE  
-  if (motor_angleTiltReal >= MOTOR_TILT_MAX_ANGLE)
-  {
-    motor_tiltError = true;
-    return;
-  }
-#endif
   if ((speed & 0x80) == 0)
   {
+  #ifdef MOTOR_TILT_MAX_ANGLE  
+    if (motor_angleTiltReal >= MOTOR_TILT_MAX_ANGLE)
+    {
+      motor_tiltError = true;
+      return;
+    }
+  #endif
     PORTB |= MOTOR_TILT_RIGHT;
     speedTilt = 1;
     motor_tiltMoving = true;
@@ -381,6 +374,13 @@ void motor_moveTilt(uint8_t speed)
   }
   else
   {
+  #ifdef MOTOR_TILT_MIN_ANGLE  
+    if (motor_angleTiltReal <= MOTOR_TILT_MIN_ANGLE)
+    {
+      motor_tiltError = true;
+      return;
+    }
+  #endif
     PORTB |= MOTOR_TILT_LEFT;
     speedTilt = -1;
     motor_tiltMoving = true;
