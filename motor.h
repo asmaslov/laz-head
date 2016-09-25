@@ -8,8 +8,9 @@
 #define MOTOR_ROT_STEPS_IN_ANGLE 200
 #define MOTOR_ROT_LEFT (1 << PB3)
 #define MOTOR_ROT_RIGHT (1 << PB2)
-#define MOTOR_ROT_MIN_ANGLE -360
-#define MOTOR_ROT_MAX_ANGLE 360
+#define MOTOR_ROT_MIN_ANGLE -40
+#define MOTOR_ROT_MAX_ANGLE 40
+#define MOTOR_ROT_GAP 5
 
 #define MOTOR_TILT_TIMER_STEP_MS 1
 #define MOTOR_TILT_STEPS_IN_ANGLE 455
@@ -17,6 +18,7 @@
 #define MOTOR_TILT_RIGHT (1 << PB0)
 #define MOTOR_TILT_MIN_ANGLE -360
 #define MOTOR_TILT_MAX_ANGLE 360
+#define MOTOR_TILT_GAP 5
 
 volatile bool motor_rotInPosition;
 volatile bool motor_tiltInPosition;
