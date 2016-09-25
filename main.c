@@ -109,16 +109,14 @@ static void command_handler(void *args)
         motor_moveTiltAngle(-angleTiltSigned);
         if (first)
         {
-			    debug(1);
-          motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + MOTOR_ROT_GAP;
-          motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
+          debug(1);
+          motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
+          motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE - 2 * MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition);
-          motor_angleRotReal = 0;
-          motor_moveRotAngle(-MOTOR_ROT_GAP);
-          while(!motor_rotInPosition);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
           motor_moveRotAngle((HEAD_ROTATE_RANGE_ANGLE / 2) + MOTOR_ROT_GAP);
           while(!motor_rotInPosition);
+          debug(0);
         }
         else
         {
@@ -130,22 +128,18 @@ static void command_handler(void *args)
       {
         if (first)
         {
-					debug(1);
-          motor_angleTiltReal = MOTOR_TILT_MAX_ANGLE + MOTOR_TILT_GAP;    
-		      motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + MOTOR_ROT_GAP;
-          motor_moveTiltAngle(-HEAD_TILT_RANGE_ANGLE);
-          motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE);
-          while(!motor_rotInPosition || !motor_tiltInPosition);
-          motor_angleTiltReal = 0;    
-		      motor_angleRotReal = 0;
-          motor_moveTiltAngle(-MOTOR_TILT_GAP);
-          motor_moveRotAngle(-MOTOR_ROT_GAP);          
+          debug(1);
+          motor_angleTiltReal = MOTOR_TILT_MAX_ANGLE + 3 * MOTOR_TILT_GAP;    
+          motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
+          motor_moveTiltAngle(-HEAD_TILT_RANGE_ANGLE - 2 * MOTOR_TILT_GAP);
+          motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE - 2 * MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleTiltReal = MOTOR_TILT_MIN_ANGLE - MOTOR_TILT_GAP;    
-		      motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
+          motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
           motor_moveTiltAngle((HEAD_TILT_RANGE_ANGLE / 2) + MOTOR_TILT_GAP);
           motor_moveRotAngle((HEAD_ROTATE_RANGE_ANGLE / 2) + MOTOR_ROT_GAP);
-          while(!motor_rotInPosition || !motor_tiltInPosition);
+          while(!motor_rotInPosition || !motor_tiltInPosition)
+          debug(0);
         }
         else
         {
@@ -210,7 +204,6 @@ int main(void)
   {
     motor_angleTiltReal = (int16_t)floor(lsm303_anglesReal.pitch);
   }
-  deblink(3);
   sei();
   wdt_enable(WDTO_250MS);
 #ifdef HEAD_GYROSCOPE_REALTIME

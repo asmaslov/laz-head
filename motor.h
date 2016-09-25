@@ -16,8 +16,8 @@
 #define MOTOR_TILT_STEPS_IN_ANGLE 455
 #define MOTOR_TILT_LEFT (1 << PB1)
 #define MOTOR_TILT_RIGHT (1 << PB0)
-#define MOTOR_TILT_MIN_ANGLE -50
-#define MOTOR_TILT_MAX_ANGLE 50
+#define MOTOR_TILT_MIN_ANGLE -38
+#define MOTOR_TILT_MAX_ANGLE 38
 #define MOTOR_TILT_GAP 5
 
 volatile bool motor_rotInPosition;
