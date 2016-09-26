@@ -8,9 +8,6 @@
 #define HEAD_ADDR  0x21
 #define PC_ADDR    0xA1
 
-#define HEAD_ROTATE_RANGE_ANGLE  76
-#define HEAD_TILT_RANGE_ANGLE    76
-
 //#define HEAD_GYROSCOPE_REALTIME
 
 #define HEAD_FIRE_TRIGGER_ACTIVATE  (1 << PC6)

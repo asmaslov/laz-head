@@ -147,6 +147,7 @@ void motor_setup(void)
 
 void motor_moveRotAngle(int16_t deltaAngle)
 {
+  motor_rotInPosition = false;
   motor_stopRot();
   if(deltaAngle != 0)
   {
@@ -173,7 +174,6 @@ void motor_moveRotAngle(int16_t deltaAngle)
       PORTB |= MOTOR_ROT_RIGHT;
       speedRot = 1;
       motor_rotMoving = true;
-      motor_rotInPosition = false;
       controlRotAngle = true;
       TCCR1B = timerRotConfig;
     #ifdef __AVR_ATmega16__
@@ -189,7 +189,6 @@ void motor_moveRotAngle(int16_t deltaAngle)
       PORTB |= MOTOR_ROT_LEFT;
       speedRot = -1;
       motor_rotMoving = true;
-      motor_rotInPosition = false;
       controlRotAngle = true;
       TCCR1B = timerRotConfig;
     #ifdef __AVR_ATmega16__
@@ -205,6 +204,7 @@ void motor_moveRotAngle(int16_t deltaAngle)
 
 void motor_moveTiltAngle(int16_t deltaAngle)
 {
+  motor_tiltInPosition = false;
   motor_stopTilt();
   if(deltaAngle != 0)
   {
@@ -231,7 +231,6 @@ void motor_moveTiltAngle(int16_t deltaAngle)
       PORTB |= MOTOR_TILT_RIGHT;
       speedTilt = 1;
       motor_tiltMoving = true;
-      motor_tiltInPosition = false;
       controlTiltAngle = true;
     #ifdef __AVR_ATmega16__
       TCCR2 = timerTiltConfig;
@@ -248,7 +247,6 @@ void motor_moveTiltAngle(int16_t deltaAngle)
       PORTB |= MOTOR_TILT_LEFT;
       speedTilt = -1;
       motor_tiltMoving = true;
-      motor_tiltInPosition = false;
       controlTiltAngle = true;
     #ifdef __AVR_ATmega16__
       TCCR2 = timerTiltConfig;

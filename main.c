@@ -46,7 +46,7 @@ static void command_handler(void *args)
   switch (data->type) {
     case HEAD_CONTROL_READ:
     #ifdef HEAD_GYROSCOPE_REALTIME
-      comport_reply_data(motor_angleRotReal, (int16_t)floor((&lsm303_anglesReal)->pitch),
+      comport_reply_data(motor_angleRotReal, -(int16_t)floor((&lsm303_anglesReal)->pitch),
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError,
@@ -106,22 +106,26 @@ static void command_handler(void *args)
       if (lsm303_used && lsm303_get(&lsm303_anglesReal))
       {
         motor_angleTiltReal = -(int16_t)floor(lsm303_anglesReal.pitch);
+        motor_tiltInPosition = false;
         motor_moveTiltAngle(-motor_angleTiltReal);
         if (first)
         {
           debug(1);
           motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
-          motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE - 2 * MOTOR_ROT_GAP);
-          while(motor_rotMoving || motor_tiltMoving);
+          motor_rotInPosition = false;
+          motor_moveRotAngle(-(MOTOR_ROT_MAX_ANGLE - MOTOR_ROT_MIN_ANGLE) - 2 * MOTOR_ROT_GAP);
+          while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
-          motor_moveRotAngle((HEAD_ROTATE_RANGE_ANGLE / 2) + MOTOR_ROT_GAP);
-          while(motor_rotMoving);
+          motor_rotInPosition = false;
+          motor_moveRotAngle(-MOTOR_ROT_MIN_ANGLE + MOTOR_ROT_GAP);
+          while(!motor_rotInPosition);
           debug(0);
         }
         else
         {
+          motor_rotInPosition = false;
           motor_moveRotAngle(-motor_angleRotReal);
-          while(motor_rotMoving || motor_tiltMoving);    
+          while(!motor_rotInPosition || !motor_tiltInPosition);    
         }
       }
       else
@@ -130,20 +134,26 @@ static void command_handler(void *args)
         {
           debug(1);
           motor_angleTiltReal = MOTOR_TILT_MAX_ANGLE + 3 * MOTOR_TILT_GAP;    
+          motor_tiltInPosition = false;
+          motor_moveTiltAngle(-(MOTOR_TILT_MAX_ANGLE - MOTOR_TILT_MIN_ANGLE) - 2 * MOTOR_TILT_GAP);
           motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
-          motor_moveTiltAngle(-HEAD_TILT_RANGE_ANGLE - 2 * MOTOR_TILT_GAP);
-          motor_moveRotAngle(-HEAD_ROTATE_RANGE_ANGLE - 2 * MOTOR_ROT_GAP);
-          while(motor_rotMoving || motor_tiltMoving);
+          motor_rotInPosition = false;
+          motor_moveRotAngle(-(MOTOR_ROT_MAX_ANGLE - MOTOR_ROT_MIN_ANGLE) - 2 * MOTOR_ROT_GAP);
+          while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleTiltReal = MOTOR_TILT_MIN_ANGLE - MOTOR_TILT_GAP;    
+          motor_tiltInPosition = false;
+          motor_moveTiltAngle(-MOTOR_TILT_MIN_ANGLE + MOTOR_TILT_GAP);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
-          motor_moveTiltAngle((HEAD_TILT_RANGE_ANGLE / 2) + MOTOR_TILT_GAP);
-          motor_moveRotAngle((HEAD_ROTATE_RANGE_ANGLE / 2) + MOTOR_ROT_GAP);
-          while(motor_rotMoving || motor_tiltMoving)
+          motor_rotInPosition = false;
+          motor_moveRotAngle(-MOTOR_ROT_MIN_ANGLE + MOTOR_ROT_GAP);
+          while(!motor_rotInPosition || !motor_tiltInPosition)
           debug(0);
         }
         else
         {
+          motor_tiltInPosition = false;
           motor_moveTiltAngle(-motor_angleTiltReal);
+          motor_rotInPosition = false;
           motor_moveRotAngle(-motor_angleRotReal);
           while(!motor_rotInPosition || !motor_tiltInPosition);
         }                
