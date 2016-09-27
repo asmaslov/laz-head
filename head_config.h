@@ -9,6 +9,7 @@
 #define PC_ADDR    0xA1
 
 //#define HEAD_GYROSCOPE_REALTIME
+//#define HEAD_BOOT_BLINK
 
 #define HEAD_FIRE_TRIGGER_ACTIVATE  (1 << PC6)
 #define HEAD_FIRE_TRIGGER_FIRE      (1 << PC7)

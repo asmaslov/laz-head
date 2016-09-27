@@ -40,7 +40,7 @@ static void command_handler(void *args)
 {
   int16_t angleRotSigned;
   int16_t angleTiltSigned;
-  uint8_t i, delay;
+  uint32_t i, delay;
 
   HeadPacket *data = (HeadPacket *)args;
   switch (data->type) {
@@ -106,24 +106,20 @@ static void command_handler(void *args)
       if (lsm303_used && lsm303_get(&lsm303_anglesReal))
       {
         motor_angleTiltReal = -(int16_t)floor(lsm303_anglesReal.pitch);
-        motor_tiltInPosition = false;
         motor_moveTiltAngle(-motor_angleTiltReal);
         if (first)
         {
           debug(1);
           motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
-          motor_rotInPosition = false;
           motor_moveRotAngle(-(MOTOR_ROT_MAX_ANGLE - MOTOR_ROT_MIN_ANGLE) - 2 * MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
-          motor_rotInPosition = false;
           motor_moveRotAngle(-MOTOR_ROT_MIN_ANGLE + MOTOR_ROT_GAP);
           while(!motor_rotInPosition);
           debug(0);
         }
         else
         {
-          motor_rotInPosition = false;
           motor_moveRotAngle(-motor_angleRotReal);
           while(!motor_rotInPosition || !motor_tiltInPosition);    
         }
@@ -134,26 +130,20 @@ static void command_handler(void *args)
         {
           debug(1);
           motor_angleTiltReal = MOTOR_TILT_MAX_ANGLE + 3 * MOTOR_TILT_GAP;    
-          motor_tiltInPosition = false;
           motor_moveTiltAngle(-(MOTOR_TILT_MAX_ANGLE - MOTOR_TILT_MIN_ANGLE) - 2 * MOTOR_TILT_GAP);
           motor_angleRotReal = MOTOR_ROT_MAX_ANGLE + 3 * MOTOR_ROT_GAP;
-          motor_rotInPosition = false;
           motor_moveRotAngle(-(MOTOR_ROT_MAX_ANGLE - MOTOR_ROT_MIN_ANGLE) - 2 * MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleTiltReal = MOTOR_TILT_MIN_ANGLE - MOTOR_TILT_GAP;    
-          motor_tiltInPosition = false;
           motor_moveTiltAngle(-MOTOR_TILT_MIN_ANGLE + MOTOR_TILT_GAP);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
-          motor_rotInPosition = false;
           motor_moveRotAngle(-MOTOR_ROT_MIN_ANGLE + MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition)
           debug(0);
         }
         else
         {
-          motor_tiltInPosition = false;
           motor_moveTiltAngle(-motor_angleTiltReal);
-          motor_rotInPosition = false;
           motor_moveRotAngle(-motor_angleRotReal);
           while(!motor_rotInPosition || !motor_tiltInPosition);
         }                
@@ -183,17 +173,17 @@ static void command_handler(void *args)
       if (data->triggerSingle)
       {
         PORTC |= HEAD_FIRE_TRIGGER_ACTIVATE;
-        delay = HEAD_FIRE_SINGLE_ACTIVATE_DELAY_MS / 10;
+        delay = HEAD_FIRE_SINGLE_ACTIVATE_DELAY_MS;
         for (i = 0; i < delay; i++)
         {
-          _delay_ms(100);
+          _delay_ms(10);
           wdt_reset();
         }
         PORTC |= HEAD_FIRE_TRIGGER_FIRE;
-        delay = HEAD_FIRE_SINGLE_FIRE_TIME_MS / 10;
+        delay = HEAD_FIRE_SINGLE_FIRE_TIME_MS;
         for (i = 0; i < delay; i++)
         {
-          _delay_ms(100);
+          _delay_ms(10);
           wdt_reset();
         }
         PORTC &= ~(HEAD_FIRE_TRIGGER_ACTIVATE | HEAD_FIRE_TRIGGER_FIRE);
@@ -213,6 +203,13 @@ int main(void)
   if (lsm303_used && lsm303_get(&lsm303_anglesReal))
   {
     motor_angleTiltReal = (int16_t)floor(lsm303_anglesReal.pitch);
+  #ifdef HEAD_BOOT_BLINK
+    deblink(3);
+  }
+  else
+  {
+    deblink(2);
+  #endif
   }
   sei();
   wdt_enable(WDTO_250MS);

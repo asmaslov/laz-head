@@ -147,10 +147,10 @@ void motor_setup(void)
 
 void motor_moveRotAngle(int16_t deltaAngle)
 {
-  motor_rotInPosition = false;
   motor_stopRot();
   if(deltaAngle != 0)
   {
+    motor_rotInPosition = false;
     angleRotPref = motor_angleRotReal + deltaAngle;
     timerRotStep = 0;
   #ifdef MOTOR_ROT_MIN_ANGLE  
@@ -204,10 +204,10 @@ void motor_moveRotAngle(int16_t deltaAngle)
 
 void motor_moveTiltAngle(int16_t deltaAngle)
 {
-  motor_tiltInPosition = false;
   motor_stopTilt();
   if(deltaAngle != 0)
   {
+    motor_tiltInPosition = false;
     angleTiltPref = motor_angleTiltReal + deltaAngle;
     timerTiltStep = 0;
   #ifdef MOTOR_TILT_MIN_ANGLE  
