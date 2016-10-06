@@ -200,6 +200,10 @@ void motor_moveRotAngle(int16_t deltaAngle)
       TCNT1 = 0;      
     }
   }
+  else
+  {
+    motor_rotInPosition = true;
+  }
 }
 
 void motor_moveTiltAngle(int16_t deltaAngle)
@@ -258,6 +262,10 @@ void motor_moveTiltAngle(int16_t deltaAngle)
     #endif
       TCNT2 = 0;    
     }    
+  }
+  else
+  {
+    motor_tiltInPosition = true;
   }
 }
 
