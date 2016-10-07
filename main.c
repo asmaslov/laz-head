@@ -114,7 +114,7 @@ static void command_handler(void *args)
           motor_moveRotAngle(-(MOTOR_ROT_MAX_ANGLE - MOTOR_ROT_MIN_ANGLE) - 2 * MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
-          motor_moveRotAngle(-MOTOR_ROT_MIN_ANGLE + MOTOR_ROT_GAP);
+          motor_moveRotAngle(-motor_angleRotReal);
           while(!motor_rotInPosition);
           debug(0);
         }
@@ -135,9 +135,9 @@ static void command_handler(void *args)
           motor_moveRotAngle(-(MOTOR_ROT_MAX_ANGLE - MOTOR_ROT_MIN_ANGLE) - 2 * MOTOR_ROT_GAP);
           while(!motor_rotInPosition || !motor_tiltInPosition);
           motor_angleTiltReal = MOTOR_TILT_MIN_ANGLE - MOTOR_TILT_GAP;    
-          motor_moveTiltAngle(-MOTOR_TILT_MIN_ANGLE + MOTOR_TILT_GAP);
+          motor_moveTiltAngle(-motor_angleTiltReal);
           motor_angleRotReal = MOTOR_ROT_MIN_ANGLE - MOTOR_ROT_GAP;
-          motor_moveRotAngle(-MOTOR_ROT_MIN_ANGLE + MOTOR_ROT_GAP);
+          motor_moveRotAngle(-motor_angleRotReal);
           while(!motor_rotInPosition || !motor_tiltInPosition)
           debug(0);
         }
@@ -212,7 +212,7 @@ int main(void)
   #endif
   }
   sei();
-  wdt_enable(WDTO_250MS);
+  wdt_enable(WDTO_500MS);
 #ifdef HEAD_GYROSCOPE_REALTIME
   if (lsm303_used)
   {
