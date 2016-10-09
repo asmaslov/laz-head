@@ -395,6 +395,10 @@ class MainWindow(QtGui.QMainWindow):
                             messageText = messageText + 'Tilt active '
                         if (data[6] & (1 << 5)):
                             messageText = messageText + 'Tilt error '
+                        if (data[7] & (1 << 0)):
+                            messageText = messageText + 'Calibrate in progess '
+                        if (data[7] & (1 << 1)):
+                            messageText = messageText + 'Need calibrate '
                         self.ui.statusbar.showMessage(messageText)
                     else:
                         self.ui.statusbar.showMessage('Unknown')

@@ -12,7 +12,8 @@
 #include "lsm303.h"
 #include "debug.h"
 
-static bool first = true;
+volatile bool first = true;
+volatile bool calibrateInProgress = false;
 
 static void init_board(void)
 {
@@ -50,13 +51,15 @@ static void command_handler(void *args)
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError,
-                         lsm303_used, lsm303_error);
+                         lsm303_used, lsm303_error,
+                         calibrateInProgress, first);
     #else
       comport_reply_data(motor_angleRotReal, motor_angleTiltReal,
                          motor_rotInPosition, motor_tiltInPosition,
                          motor_rotMoving, motor_tiltMoving,
                          motor_rotError, motor_tiltError,
-                         lsm303_used, lsm303_error);
+                         lsm303_used, lsm303_error,
+                         calibrateInProgress, first);
     #endif
       break;
     case HEAD_CONTROL_MOVE_ANGLE:
@@ -103,6 +106,7 @@ static void command_handler(void *args)
       break;
     case HEAD_CONTROL_ZERO:
       comport_reply_ack();
+      calibrateInProgress = true;
       if (lsm303_used && lsm303_get(&lsm303_anglesReal))
       {
         motor_angleTiltReal = -(int16_t)floor(lsm303_anglesReal.pitch);
@@ -151,6 +155,7 @@ static void command_handler(void *args)
       first = false;
       motor_angleRotReal = 0;
       motor_angleTiltReal = 0;
+      calibrateInProgress = false;
       break;
     case HEAD_CONTROL_FIRE:
       comport_reply_ack();

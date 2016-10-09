@@ -63,6 +63,16 @@ typedef union {
     };
     union {
       unsigned char motorSpeed;
+      struct {
+        unsigned char calibrateInProgress : 1;
+        unsigned char needCalibrate : 1;
+        unsigned char __reply_bit_10 : 1;
+        unsigned char __reply_bit_11 : 1;
+        unsigned char __reply_bit_12 : 1;
+        unsigned char __reply_bit_13 : 1;
+        unsigned char __reply_bit_14 : 1;
+        unsigned char __reply_bit_15 : 1;
+      };
       unsigned char speedLimitTilt;
     };  
     union {

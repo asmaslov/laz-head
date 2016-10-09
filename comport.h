@@ -19,6 +19,7 @@ void comport_reply_data(int16_t angleRot, int16_t angleTilt,
                         bool rotInPosition, bool tiltInPosition,
                         bool rotMoving, bool tiltMoving,
                         bool rotError, bool tiltError,
-                        bool gyroUsed, bool gyroError);
+                        bool gyroUsed, bool gyroError,
+                        bool calibrateInProgress, bool needCalibrate);
 
 #endif // __COMPORT_H__
